@@ -110,7 +110,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-700">
+    <div className="min-h-screen bg-[#FFFBF5] text-[#1A1A1A] flex flex-col font-sans selection:bg-[#E88D4D]/30 selection:text-[#1A1A1A]">
       
       {/* Top WCAG Accessibility Bar & Skip Link */}
       <AccessibilityToolbar />

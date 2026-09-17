@@ -347,27 +347,27 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   if (!isAuthenticated) {
     return (
       <div className="max-w-xl mx-auto px-4 py-12 sm:py-20 animate-fadeIn">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+        <div className="bg-[#FFFBF5] rounded-2xl border border-[#E8DFD0] shadow-xl overflow-hidden">
           {/* Header Banner */}
-          <div className="bg-slate-900 p-8 text-white text-center relative overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-indigo-600/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="w-16 h-16 rounded-2xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="bg-[#1A1A1A] p-8 text-white text-center relative overflow-hidden">
+            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#C83C2E]/20 rounded-full blur-2xl pointer-events-none" />
+            <div className="w-16 h-16 rounded-2xl bg-[#C83C2E]/20 border border-[#C83C2E]/30 text-[#E88D4D] flex items-center justify-center mx-auto mb-4 shadow-lg">
               <Lock className="w-8 h-8" />
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/80 border border-amber-800/80 text-amber-300 text-xs font-bold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A2A2A] border border-[#E88D4D]/40 text-[#E88D4D] text-xs font-bold uppercase tracking-wider mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Restricted Admin Access</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
+            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#FFFBF5]">
               Administrator Login
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-md mx-auto mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-stone-300 max-w-md mx-auto mt-2 leading-relaxed">
               This area is restricted to Faith Wanja (One-Jar Poetry) and authorized site managers.
             </p>
           </div>
 
           {/* Form Body */}
-          <form onSubmit={handleAuthenticate} className="p-6 sm:p-8 space-y-5">
+          <form onSubmit={handleAuthenticate} className="p-6 sm:p-8 space-y-5 bg-[#FFFBF5]">
             {passcodeError && (
               <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-3 animate-fadeIn">
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
@@ -381,11 +381,11 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             )}
 
             <div className="space-y-2">
-              <label htmlFor="admin-passcode-input" className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+              <label htmlFor="admin-passcode-input" className="block text-xs font-bold uppercase tracking-wider text-[#1A1A1A]">
                 Administrator Passcode / PIN
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
                   <KeyRound className="w-4 h-4" />
                 </div>
                 <input
@@ -399,12 +399,12 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   placeholder="Enter administrator passcode..."
                   required
                   autoFocus
-                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all shadow-xs"
+                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-[#E8DFD0] bg-[#FAF5ED] focus:bg-white text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E] focus:border-transparent transition-all shadow-xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPasscode(!showPasscode)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none cursor-pointer"
                   title={showPasscode ? "Hide passcode" : "Show passcode"}
                 >
                   {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -412,9 +412,9 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               </div>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs flex items-center justify-between gap-2">
-              <span className="font-medium text-slate-600">Default Administrator PIN:</span>
-              <code className="bg-white px-2 py-1 rounded border border-slate-300 font-mono text-indigo-700 font-bold select-all">
+            <div className="p-3.5 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A] text-xs flex items-center justify-between gap-2">
+              <span className="font-medium text-stone-600">Default Administrator PIN:</span>
+              <code className="bg-white px-2 py-1 rounded border border-[#E8DFD0] font-mono text-[#C83C2E] font-bold select-all">
                 wanja2026
               </code>
             </div>
@@ -423,7 +423,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               <button
                 type="submit"
                 id="unlock-admin-btn"
-                className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span>Unlock Admin Portal</span>
@@ -433,7 +433,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 type="button"
                 id="cancel-admin-btn"
                 onClick={() => onNavigateTab('home')}
-                className="w-full sm:w-auto py-3 px-5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm transition-all flex items-center justify-center gap-1.5"
+                className="w-full sm:w-auto py-3 px-5 rounded-xl border border-[#E8DFD0] bg-white hover:bg-stone-50 text-[#1A1A1A] font-semibold text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Exit</span>
@@ -450,24 +450,24 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-3 animate-fadeIn text-sm">
+        <div className="fixed bottom-6 right-6 z-50 bg-[#1A1A1A] text-white px-5 py-3 rounded-xl shadow-xl border border-[#2A2A2A] flex items-center gap-3 animate-fadeIn text-sm">
           <CheckCircle2 className="w-5 h-5 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* CMS Studio Banner */}
-      <div className="p-8 sm:p-10 rounded-2xl bg-slate-900 text-white space-y-4 border border-slate-800 shadow-sm relative overflow-hidden">
+      <div className="p-8 sm:p-10 rounded-2xl bg-[#1A1A1A] text-white space-y-4 border border-[#2A2A2A] shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-indigo-400 bg-indigo-950 px-3 py-1 rounded-full border border-indigo-800/60 mb-3">
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E88D4D] bg-[#2A2A2A] px-3 py-1 rounded-full border border-[#3A6EA5]/30 mb-3">
               <Layout className="w-3.5 h-3.5" />
               <span>Interactive CMS Studio · Creator Workspace</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-white">
+            <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5]">
               Content Management System
             </h1>
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed mt-1">
+            <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed mt-1">
               Create, edit, delete, categorize, and publish poems, articles, video archives, and site configurations in real-time. Edits persist locally.
             </p>
           </div>
@@ -477,7 +477,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <button
               id="cms-view-poetry-btn"
               onClick={() => onNavigateTab('poetry')}
-              className="px-3.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2.5 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-xs font-bold text-white shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Navigate directly to public Poetry page to see published stanzas"
             >
               <Eye className="w-4 h-4 text-white" />
@@ -487,15 +487,15 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <button
               id="cms-export-btn"
               onClick={exportCmsData}
-              className="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Export all CMS data to JSON backup file"
             >
-              <Download className="w-4 h-4 text-indigo-400" />
+              <Download className="w-4 h-4 text-[#E88D4D]" />
               <span>Export JSON</span>
             </button>
 
-            <label className="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors cursor-pointer flex items-center gap-1.5">
-              <Upload className="w-4 h-4 text-indigo-400" />
+            <label className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors cursor-pointer flex items-center gap-1.5">
+              <Upload className="w-4 h-4 text-[#3A6EA5]" />
               <span>Import JSON</span>
               <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
             </label>
@@ -503,7 +503,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <button
               id="cms-reset-btn"
               onClick={handleResetData}
-              className="px-3.5 py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-rose-300 border border-slate-700 transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-[#E88D4D] border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Reset data back to default seed state"
             >
               <RefreshCw className="w-4 h-4" />
@@ -513,10 +513,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <button
               id="cms-logout-btn"
               onClick={handleLogout}
-              className="px-3.5 py-2.5 rounded-lg bg-red-950/80 hover:bg-red-900 text-xs font-bold text-red-200 border border-red-800/80 transition-colors flex items-center gap-1.5 shadow-xs"
+              className="px-3.5 py-2.5 rounded-lg bg-[#C83C2E]/20 hover:bg-[#C83C2E]/30 text-xs font-bold text-rose-300 border border-[#C83C2E]/40 transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               title="Lock admin portal and end session"
             >
-              <LogOut className="w-4 h-4 text-red-400" />
+              <LogOut className="w-4 h-4 text-[#E88D4D]" />
               <span>Lock Portal</span>
             </button>
           </div>
@@ -524,15 +524,15 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       </div>
 
       {/* Navigation Tabs for CMS Content Types */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-2">
-        <div className="flex flex-wrap gap-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#E8DFD0] pb-2">
+        <div className="flex flex-wrap gap-1 bg-[#FAF5ED] p-1.5 rounded-xl border border-[#E8DFD0]">
           <button
             id="cms-tab-poems"
             onClick={() => { setActiveContentType('poems'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'poems'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <BookOpen className="w-4 h-4" />
@@ -542,10 +542,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-articles"
             onClick={() => { setActiveContentType('articles'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'articles'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <FileText className="w-4 h-4" />
@@ -555,10 +555,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-videos"
             onClick={() => { setActiveContentType('videos'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'videos'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <Video className="w-4 h-4" />
@@ -568,10 +568,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-services"
             onClick={() => { setActiveContentType('services'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'services'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <Briefcase className="w-4 h-4" />
@@ -581,10 +581,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-achievements"
             onClick={() => { setActiveContentType('achievements'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'achievements'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <Award className="w-4 h-4" />
@@ -594,10 +594,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-settings"
             onClick={() => { setActiveContentType('settings'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'settings'
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-700 hover:bg-white'
+                ? 'bg-[#C83C2E] text-white shadow-xs'
+                : 'text-stone-700 hover:bg-white'
             }`}
           >
             <Settings className="w-4 h-4" />
@@ -616,7 +616,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               if (activeContentType === 'services') handleCreateService();
               if (activeContentType === 'achievements') handleCreateAchievement();
             }}
-            className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all hover:scale-102"
+            className="px-4 py-2.5 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Create New {activeContentType.slice(0, -1).toUpperCase()}</span>
@@ -629,42 +629,42 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
         <div className="space-y-6">
           
           {/* Search & Filter Toolbar */}
-          <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-4 rounded-xl bg-white border border-[#E8DFD0] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="relative w-full sm:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
               <input
                 type="text"
                 placeholder={`Search ${activeContentType}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
               />
             </div>
 
             <div className="flex items-center gap-2 text-xs w-full sm:w-auto justify-end">
-              <span className="text-slate-500 font-semibold flex items-center gap-1">
+              <span className="text-stone-500 font-semibold flex items-center gap-1">
                 <Filter className="w-3.5 h-3.5" /> Filter Status:
               </span>
               <button
                 onClick={() => setStatusFilter('all')}
-                className={`px-3 py-1.5 rounded-md font-semibold ${
-                  statusFilter === 'all' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  statusFilter === 'all' ? 'bg-[#1A1A1A] text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setStatusFilter('published')}
-                className={`px-3 py-1.5 rounded-md font-semibold ${
-                  statusFilter === 'published' ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  statusFilter === 'published' ? 'bg-emerald-700 text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
                 }`}
               >
                 Published
               </button>
               <button
                 onClick={() => setStatusFilter('draft')}
-                className={`px-3 py-1.5 rounded-md font-semibold ${
-                  statusFilter === 'draft' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  statusFilter === 'draft' ? 'bg-[#E88D4D] text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
                 }`}
               >
                 Drafts
@@ -673,18 +673,18 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           </div>
 
           {/* Table / List View */}
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+          <div className="bg-white rounded-2xl border border-[#E8DFD0] overflow-hidden shadow-xs">
             
             {/* POEMS LIST */}
             {activeContentType === 'poems' && (
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-[#E8DFD0]">
                 {filteredPoems.length === 0 ? (
-                  <div className="p-12 text-center text-slate-500 text-sm">
+                  <div className="p-12 text-center text-stone-500 text-sm">
                     No poems found matching search criteria. Click "Create New POEM" to add one!
                   </div>
                 ) : (
                   filteredPoems.map((poem) => (
-                    <div key={poem.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                    <div key={poem.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex items-center gap-2">
                           <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -694,22 +694,22 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                           }`}>
                             {poem.status || 'published'}
                           </span>
-                          <span className="text-xs text-slate-400 font-semibold">{poem.year}</span>
+                          <span className="text-xs text-stone-400 font-semibold">{poem.year}</span>
                           {poem.featured && (
-                            <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded font-bold border border-indigo-100">
+                            <span className="text-[10px] bg-[#E88D4D]/15 text-[#E88D4D] px-2 py-0.5 rounded font-bold border border-[#E88D4D]/30">
                               Featured
                             </span>
                           )}
                         </div>
-                        <h3 className="font-serif text-xl font-bold text-slate-900">
+                        <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
                           {poem.title}
                         </h3>
-                        <p className="text-xs text-slate-600 line-clamp-1 italic">
+                        <p className="text-xs text-stone-600 line-clamp-1 italic">
                           "{poem.excerpt}"
                         </p>
                         <div className="flex flex-wrap gap-1.5 pt-1">
                           {poem.tags.map(t => (
-                            <span key={t} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+                            <span key={t} className="text-[10px] bg-[#FAF5ED] text-stone-600 px-2 py-0.5 rounded font-medium border border-[#E8DFD0]">
                               #{t}
                             </span>
                           ))}
@@ -721,7 +721,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                         {onPreviewPoem && (
                           <button
                             onClick={() => onPreviewPoem(poem)}
-                            className="p-2 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 transition-colors"
+                            className="p-2 rounded-lg text-stone-600 hover:text-[#C83C2E] hover:bg-[#C83C2E]/10 border border-[#E8DFD0] transition-colors cursor-pointer"
                             title="Preview poem reader modal"
                           >
                             <Eye className="w-4 h-4" />
@@ -730,7 +730,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                         <button
                           onClick={() => handleTogglePoemStatus(poem)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                             poem.status === 'published'
                               ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
                               : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
@@ -742,7 +742,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                         <button
                           onClick={() => { setEditingItem(poem); setIsCreatingNew(false); }}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                           <span>Edit</span>
@@ -750,7 +750,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                         <button
                           onClick={() => setDeleteConfirmId(poem.id)}
-                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors"
+                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
                           title="Delete poem"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -764,14 +764,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
             {/* ARTICLES LIST */}
             {activeContentType === 'articles' && (
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-[#E8DFD0]">
                 {filteredArticles.length === 0 ? (
-                  <div className="p-12 text-center text-slate-500 text-sm">
+                  <div className="p-12 text-center text-stone-500 text-sm">
                     No articles found matching search query.
                   </div>
                 ) : (
                   filteredArticles.map((article) => (
-                    <div key={article.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                    <div key={article.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
                       <div className="space-y-1.5 max-w-2xl">
                         <div className="flex items-center gap-2">
                           <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -781,15 +781,15 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                           }`}>
                             {article.status || 'published'}
                           </span>
-                          <span className="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                          <span className="text-[10px] uppercase font-bold text-[#3A6EA5] bg-[#3A6EA5]/10 px-2 py-0.5 rounded border border-[#3A6EA5]/20">
                             {article.type}
                           </span>
-                          <span className="text-xs text-slate-400 font-semibold">{article.date}</span>
+                          <span className="text-xs text-stone-400 font-semibold">{article.date}</span>
                         </div>
-                        <h3 className="font-serif text-xl font-bold text-slate-900">
+                        <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
                           {article.title}
                         </h3>
-                        <p className="text-xs text-slate-600 line-clamp-1">
+                        <p className="text-xs text-stone-600 line-clamp-1">
                           {article.excerpt}
                         </p>
                       </div>
@@ -797,7 +797,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => handleToggleArticleStatus(article)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
                             article.status === 'published'
                               ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
                               : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
@@ -808,7 +808,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                         <button
                           onClick={() => { setEditingItem(article); setIsCreatingNew(false); }}
-                          className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors flex items-center gap-1"
+                          className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                           <span>Edit</span>
@@ -816,7 +816,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                         <button
                           onClick={() => setDeleteConfirmId(article.id)}
-                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors"
+                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -830,14 +830,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             {/* VIDEOS LIST */}
             {activeContentType === 'videos' && (
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-slate-800">
+                <div className="p-4 rounded-xl bg-[#1A1A1A] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#2A2A2A]">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs font-bold text-red-400">
-                      <Youtube className="w-4 h-4 text-red-500 fill-red-500" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-[#E88D4D]">
+                      <Youtube className="w-4 h-4 text-[#C83C2E] fill-[#C83C2E]" />
                       <span>YouTube Channel Integration (@one_jar_poetry)</span>
                     </div>
-                    <p className="text-xs text-slate-300">
-                      Manage videos synced from <a href="https://www.youtube.com/@one_jar_poetry" target="_blank" rel="noopener noreferrer" className="text-indigo-300 underline font-semibold">@one_jar_poetry</a>. Videos updated here sync live across the app.
+                    <p className="text-xs text-stone-300">
+                      Manage videos synced from <a href="https://www.youtube.com/@one_jar_poetry" target="_blank" rel="noopener noreferrer" className="text-[#FAF5ED] underline font-semibold">@one_jar_poetry</a>. Videos updated here sync live across the app.
                     </p>
                   </div>
                   <button
@@ -847,16 +847,16 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       setVideos(result.videos);
                       showToast(result.message);
                     }}
-                    className="px-3.5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
                   >
                     <RefreshCw className="w-3.5 h-3.5" />
                     <span>Sync Channel Videos</span>
                   </button>
                 </div>
 
-                <div className="divide-y divide-slate-200">
+                <div className="divide-y divide-[#E8DFD0]">
                   {filteredVideos.map((video) => (
-                  <div key={video.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                  <div key={video.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
                     <div className="space-y-1.5 max-w-2xl">
                       <div className="flex items-center gap-2">
                         <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -866,13 +866,13 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                         }`}>
                           {video.status || 'published'}
                         </span>
-                        <span className="text-xs text-indigo-600 font-bold">{video.event}</span>
-                        <span className="text-xs text-slate-400 font-medium">({video.duration})</span>
+                        <span className="text-xs text-[#3A6EA5] font-bold">{video.event}</span>
+                        <span className="text-xs text-stone-400 font-medium">({video.duration})</span>
                       </div>
-                      <h3 className="font-serif text-xl font-bold text-slate-900">
+                      <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
                         {video.title}
                       </h3>
-                      <p className="text-xs text-slate-600 line-clamp-1">
+                      <p className="text-xs text-stone-600 line-clamp-1">
                         {video.description}
                       </p>
                     </div>
@@ -881,7 +881,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       {onPreviewVideo && (
                         <button
                           onClick={() => onPreviewVideo(video)}
-                          className="p-2 rounded-lg text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-200 transition-colors"
+                          className="p-2 rounded-lg text-stone-600 hover:text-[#C83C2E] hover:bg-[#C83C2E]/10 border border-[#E8DFD0] transition-colors cursor-pointer"
                           title="Preview video modal"
                         >
                           <Eye className="w-4 h-4" />
@@ -890,7 +890,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                       <button
                         onClick={() => { setEditingItem(video); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -898,7 +898,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                       <button
                         onClick={() => setDeleteConfirmId(video.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors"
+                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -911,17 +911,17 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
             {/* SERVICES LIST */}
             {activeContentType === 'services' && (
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-[#E8DFD0]">
                 {services.map((service) => (
-                  <div key={service.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                  <div key={service.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
                     <div className="space-y-1.5 max-w-2xl">
-                      <h3 className="font-serif text-xl font-bold text-slate-900">
+                      <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
                         {service.title}
                       </h3>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-stone-600">
                         {service.tagline}
                       </p>
-                      <div className="text-[11px] text-indigo-600 font-bold">
+                      <div className="text-[11px] text-[#3A6EA5] font-bold">
                         Audience: {service.targetAudience} · Lead Time: {service.typicalLeadTime}
                       </div>
                     </div>
@@ -929,7 +929,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => { setEditingItem(service); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -937,7 +937,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                       <button
                         onClick={() => setDeleteConfirmId(service.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors"
+                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -949,25 +949,25 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
             {/* ACHIEVEMENTS LIST */}
             {activeContentType === 'achievements' && (
-              <div className="divide-y divide-slate-200">
+              <div className="divide-y divide-[#E8DFD0]">
                 {achievements.map((ach) => (
-                  <div key={ach.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors">
+                  <div key={ach.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
                     <div className="space-y-1.5 max-w-2xl">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                        <span className="text-xs font-bold text-[#3A6EA5] bg-[#3A6EA5]/10 px-2 py-0.5 rounded border border-[#3A6EA5]/20">
                           {ach.category}
                         </span>
-                        <span className="text-xs text-slate-400 font-bold">{ach.year}</span>
+                        <span className="text-xs text-stone-400 font-bold">{ach.year}</span>
                         {ach.highlight && (
-                          <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200">
+                          <span className="text-[10px] bg-[#E88D4D]/15 text-[#E88D4D] px-2 py-0.5 rounded font-bold border border-[#E88D4D]/30">
                             Highlight
                           </span>
                         )}
                       </div>
-                      <h3 className="font-serif text-lg font-bold text-slate-900">
-                        {ach.title} — <span className="font-sans text-slate-600 font-medium text-sm">{ach.organization}</span>
+                      <h3 className="font-serif text-lg font-bold text-[#1A1A1A]">
+                        {ach.title} — <span className="font-sans text-stone-600 font-medium text-sm">{ach.organization}</span>
                       </h3>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-stone-600">
                         {ach.description}
                       </p>
                     </div>
@@ -975,7 +975,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         onClick={() => { setEditingItem(ach); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-bold transition-colors flex items-center gap-1"
+                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Edit</span>
@@ -983,7 +983,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
                       <button
                         onClick={() => setDeleteConfirmId(ach.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors"
+                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -999,73 +999,73 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
       {/* SITE SETTINGS WORKSPACE */}
       {activeContentType === 'settings' && (
-        <form onSubmit={handleSaveSettings} className="p-8 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-6">
-          <div className="border-b border-slate-200 pb-4">
-            <h2 className="font-serif text-2xl font-bold text-slate-900">
+        <form onSubmit={handleSaveSettings} className="p-8 rounded-2xl bg-white border border-[#E8DFD0] shadow-xs space-y-6">
+          <div className="border-b border-[#E8DFD0] pb-4">
+            <h2 className="font-serif text-2xl font-bold text-[#1A1A1A]">
               Global Site Configuration
             </h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-stone-500 mt-1">
               Modify top bar announcements, website title, and hero section marketing copy.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
-              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
                 Brand Site Name
               </label>
               <input
                 type="text"
                 value={siteSettings.siteName}
                 onChange={(e) => setSiteSettings({ ...siteSettings, siteName: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
                 Brand Tagline
               </label>
               <input
                 type="text"
                 value={siteSettings.siteTagline}
                 onChange={(e) => setSiteSettings({ ...siteSettings, siteTagline: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
               Homepage Hero Main Headline
             </label>
             <input
               type="text"
               value={siteSettings.heroHeadline}
               onChange={(e) => setSiteSettings({ ...siteSettings, heroHeadline: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-serif font-bold text-sm"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E] font-serif font-bold text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
               Homepage Subhead Paragraph
             </label>
             <textarea
               rows={2}
               value={siteSettings.heroSubhead}
               onChange={(e) => setSiteSettings({ ...siteSettings, heroSubhead: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
             />
           </div>
 
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+          <div className="p-4 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs font-bold text-slate-900 uppercase block">
+                <span className="text-xs font-bold text-[#1A1A1A] uppercase block">
                   Top Announcement Banner
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-stone-500">
                   Highlight tour dates, bookings, or new publication updates.
                 </span>
               </div>
@@ -1073,7 +1073,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 type="checkbox"
                 checked={siteSettings.announcementActive}
                 onChange={(e) => setSiteSettings({ ...siteSettings, announcementActive: e.target.checked })}
-                className="w-4 h-4 text-indigo-600 rounded"
+                className="w-4 h-4 text-[#C83C2E] rounded accent-[#C83C2E]"
               />
             </div>
 
@@ -1082,16 +1082,16 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 type="text"
                 value={siteSettings.announcementBanner || ''}
                 onChange={(e) => setSiteSettings({ ...siteSettings, announcementBanner: e.target.value })}
-                className="w-full px-3.5 py-2 rounded-lg bg-white border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-2 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 placeholder="Enter banner text..."
               />
             )}
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-slate-200">
+          <div className="flex justify-end pt-4 border-t border-[#E8DFD0]">
             <button
               type="submit"
-              className="px-6 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-2"
+              className="px-6 py-3 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
             >
               <Check className="w-4 h-4" />
               <span>Save Site Configuration</span>
@@ -1102,14 +1102,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
       {/* ---------------- EDIT MODAL / DRAWER FOR POEM ---------------- */}
       {editingItem && activeContentType === 'poems' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <form 
             onSubmit={handleSavePoem} 
-            className="bg-white max-w-3xl w-full rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 max-h-[90vh] flex flex-col"
+            className="bg-[#FFFBF5] max-w-3xl w-full rounded-2xl shadow-2xl border border-[#E8DFD0] overflow-hidden my-8 max-h-[90vh] flex flex-col"
           >
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="p-6 bg-[#1A1A1A] text-[#FFFBF5] flex items-center justify-between border-b border-[#2A2A2A]">
               <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-indigo-400" />
+                <BookOpen className="w-5 h-5 text-[#E88D4D]" />
                 <h3 className="font-serif text-xl font-bold">
                   {isCreatingNew ? 'Create New One-Jar Poem' : `Edit Poem: ${editingItem.title}`}
                 </h3>
@@ -1117,16 +1117,16 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-full"
+                className="text-stone-400 hover:text-white p-1 rounded-full cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-4 text-xs bg-slate-50 flex-1">
+            <div className="p-6 overflow-y-auto space-y-4 text-xs bg-[#FAF5ED] flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Poem Title *</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Poem Title *</label>
                   <input
                     type="text"
                     required
@@ -1139,38 +1139,38 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                         slug: isCreatingNew ? generateSlug(title) : editingItem.slug
                       });
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-serif font-bold text-sm"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-serif font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">URL Slug</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">URL Slug</label>
                   <input
                     type="text"
                     value={editingItem.slug}
                     onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-mono text-xs"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Year</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Year</label>
                   <input
                     type="text"
                     value={editingItem.year}
                     onChange={(e) => setEditingItem({ ...editingItem, year: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Status</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Status</label>
                   <select
                     value={editingItem.status || 'published'}
                     onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-semibold"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   >
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
@@ -1178,11 +1178,11 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Featured on Homepage?</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Featured on Homepage?</label>
                   <select
                     value={editingItem.featured ? 'true' : 'false'}
                     onChange={(e) => setEditingItem({ ...editingItem, featured: e.target.value === 'true' })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   >
                     <option value="true">Yes (Featured)</option>
                     <option value="false">No</option>
@@ -1191,17 +1191,17 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">Poem Excerpt (Summary)</label>
+                <label className="block font-bold text-[#1A1A1A] mb-1">Poem Excerpt (Summary)</label>
                 <textarea
                   rows={2}
                   value={editingItem.excerpt}
                   onChange={(e) => setEditingItem({ ...editingItem, excerpt: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">
+                <label className="block font-bold text-[#1A1A1A] mb-1">
                   Stanzas (Separate stanzas with double line breaks)
                 </label>
                 <textarea
@@ -1212,23 +1212,23 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     const stanzas = raw.split(/\n\n+/).map(s => s.trim()).filter(Boolean);
                     setEditingItem({ ...editingItem, stanzas });
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-serif leading-relaxed text-sm"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-serif leading-relaxed text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   placeholder="Stanza 1 line 1...&#10;Stanza 1 line 2...&#10;&#10;Stanza 2 line 1..."
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">The Excavation Story (Context)</label>
+                <label className="block font-bold text-[#1A1A1A] mb-1">The Excavation Story (Context)</label>
                 <textarea
                   rows={3}
                   value={editingItem.context}
                   onChange={(e) => setEditingItem({ ...editingItem, context: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">Tags (Comma separated)</label>
+                <label className="block font-bold text-[#1A1A1A] mb-1">Tags (Comma separated)</label>
                 <input
                   type="text"
                   value={editingItem.tags.join(', ')}
@@ -1236,22 +1236,22 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
                     setEditingItem({ ...editingItem, tags });
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end gap-3">
+            <div className="p-4 bg-white border-t border-[#E8DFD0] flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold"
+                className="px-4 py-2 rounded-lg border border-[#E8DFD0] text-stone-600 font-semibold cursor-pointer hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 rounded-lg bg-indigo-600 text-white font-bold shadow-xs hover:bg-indigo-700"
+                className="px-6 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold shadow-xs cursor-pointer"
               >
                 Save Poem
               </button>
@@ -1262,14 +1262,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
       {/* ---------------- EDIT MODAL FOR ARTICLE ---------------- */}
       {editingItem && activeContentType === 'articles' && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <form 
             onSubmit={handleSaveArticle} 
-            className="bg-white max-w-3xl w-full rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8 max-h-[90vh] flex flex-col"
+            className="bg-[#FFFBF5] max-w-3xl w-full rounded-2xl shadow-2xl border border-[#E8DFD0] overflow-hidden my-8 max-h-[90vh] flex flex-col"
           >
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="p-6 bg-[#1A1A1A] text-[#FFFBF5] flex items-center justify-between border-b border-[#2A2A2A]">
               <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-indigo-400" />
+                <FileText className="w-5 h-5 text-[#E88D4D]" />
                 <h3 className="font-serif text-xl font-bold">
                   {isCreatingNew ? 'Create New Article' : `Edit Article: ${editingItem.title}`}
                 </h3>
@@ -1277,31 +1277,31 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="text-slate-400 hover:text-white p-1 rounded-full"
+                className="text-stone-400 hover:text-white p-1 rounded-full cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-4 text-xs bg-slate-50 flex-1">
+            <div className="p-6 overflow-y-auto space-y-4 text-xs bg-[#FAF5ED] flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Article Title *</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Article Title *</label>
                   <input
                     type="text"
                     required
                     value={editingItem.title}
                     onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-serif font-bold text-sm"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-serif font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Type</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Type</label>
                   <select
                     value={editingItem.type}
                     onChange={(e) => setEditingItem({ ...editingItem, type: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-semibold"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   >
                     <option value="blog">Essay / Blog Post</option>
                     <option value="review">Literary Review</option>
@@ -1310,17 +1310,17 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">Excerpt</label>
+                <label className="block font-bold text-[#1A1A1A] mb-1">Excerpt</label>
                 <textarea
                   rows={2}
                   value={editingItem.excerpt}
                   onChange={(e) => setEditingItem({ ...editingItem, excerpt: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-slate-900 mb-1">
+                <label className="block font-bold text-[#1A1A1A] mb-1">
                   Paragraphs (Separate paragraphs with double line breaks)
                 </label>
                 <textarea
@@ -1331,22 +1331,22 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     const content = raw.split(/\n\n+/).map(s => s.trim()).filter(Boolean);
                     setEditingItem({ ...editingItem, content });
                   }}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 leading-relaxed text-xs"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] leading-relaxed text-xs focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Read Time</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Read Time</label>
                   <input
                     type="text"
                     value={editingItem.readTime}
                     onChange={(e) => setEditingItem({ ...editingItem, readTime: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-900 mb-1">Tags (Comma separated)</label>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Tags (Comma separated)</label>
                   <input
                     type="text"
                     value={editingItem.tags.join(', ')}
@@ -1354,23 +1354,23 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
                       setEditingItem({ ...editingItem, tags });
                     }}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end gap-3">
+            <div className="p-4 bg-white border-t border-[#E8DFD0] flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold"
+                className="px-4 py-2 rounded-lg border border-[#E8DFD0] text-stone-600 font-semibold cursor-pointer hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 rounded-lg bg-indigo-600 text-white font-bold shadow-xs hover:bg-indigo-700"
+                className="px-6 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold shadow-xs cursor-pointer"
               >
                 Save Article
               </button>
@@ -1381,37 +1381,37 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
       {/* ---------------- EDIT MODAL FOR VIDEO / SERVICE / ACHIEVEMENT ---------------- */}
       {editingItem && (activeContentType === 'videos' || activeContentType === 'services' || activeContentType === 'achievements') && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <form 
             onSubmit={(e) => {
               if (activeContentType === 'videos') handleSaveVideo(e);
               if (activeContentType === 'services') handleSaveService(e);
               if (activeContentType === 'achievements') handleSaveAchievement(e);
             }} 
-            className="bg-white max-w-2xl w-full rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8"
+            className="bg-[#FFFBF5] max-w-2xl w-full rounded-2xl shadow-2xl border border-[#E8DFD0] overflow-hidden my-8"
           >
-            <div className="p-6 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+            <div className="p-6 bg-[#1A1A1A] text-[#FFFBF5] flex items-center justify-between border-b border-[#2A2A2A]">
               <h3 className="font-serif text-xl font-bold">
                 Edit {activeContentType.slice(0, -1).toUpperCase()}
               </h3>
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-stone-400 hover:text-white p-1 cursor-pointer"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 text-xs bg-slate-50">
+            <div className="p-6 space-y-4 text-xs bg-[#FAF5ED]">
               <div>
-                <label className="block font-bold text-slate-900 mb-1">Title *</label>
+                <label className="block font-bold text-[#1A1A1A] mb-1">Title *</label>
                 <input
                   type="text"
                   required
                   value={editingItem.title}
                   onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-bold"
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-bold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
 
@@ -1419,31 +1419,31 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-slate-900 mb-1">Event / Venue</label>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Event / Venue</label>
                       <input
                         type="text"
                         value={editingItem.event}
                         onChange={(e) => setEditingItem({ ...editingItem, event: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-slate-900 mb-1">YouTube Video ID</label>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">YouTube Video ID</label>
                       <input
                         type="text"
                         value={editingItem.youtubeId}
                         onChange={(e) => setEditingItem({ ...editingItem, youtubeId: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900 font-mono"
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-mono focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-900 mb-1">Description</label>
+                    <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
                     <textarea
                       rows={3}
                       value={editingItem.description}
                       onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
                 </>
@@ -1452,21 +1452,21 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               {activeContentType === 'services' && (
                 <>
                   <div>
-                    <label className="block font-bold text-slate-900 mb-1">Tagline</label>
+                    <label className="block font-bold text-[#1A1A1A] mb-1">Tagline</label>
                     <input
                       type="text"
                       value={editingItem.tagline}
                       onChange={(e) => setEditingItem({ ...editingItem, tagline: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-900 mb-1">Description</label>
+                    <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
                     <textarea
                       rows={3}
                       value={editingItem.description}
                       onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
                 </>
@@ -1476,48 +1476,48 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block font-bold text-slate-900 mb-1">Organization</label>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Organization</label>
                       <input
                         type="text"
                         value={editingItem.organization}
                         onChange={(e) => setEditingItem({ ...editingItem, organization: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                       />
                     </div>
                     <div>
-                      <label className="block font-bold text-slate-900 mb-1">Year</label>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Year</label>
                       <input
                         type="text"
                         value={editingItem.year}
                         onChange={(e) => setEditingItem({ ...editingItem, year: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block font-bold text-slate-900 mb-1">Description</label>
+                    <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
                     <textarea
                       rows={3}
                       value={editingItem.description}
                       onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-slate-200 text-slate-900"
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
                 </>
               )}
             </div>
 
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end gap-3">
+            <div className="p-4 bg-white border-t border-[#E8DFD0] flex items-center justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 font-semibold"
+                className="px-4 py-2 rounded-lg border border-[#E8DFD0] text-stone-600 font-semibold cursor-pointer hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 rounded-lg bg-indigo-600 text-white font-bold shadow-xs hover:bg-indigo-700"
+                className="px-6 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold shadow-xs cursor-pointer"
               >
                 Save
               </button>
@@ -1528,21 +1528,21 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
       {/* DELETE CONFIRMATION MODAL */}
       {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl border border-slate-200 space-y-4 text-center">
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FFFBF5] max-w-md w-full rounded-2xl p-6 shadow-2xl border border-[#E8DFD0] space-y-4 text-center">
             <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6" />
             </div>
-            <h3 className="font-serif text-xl font-bold text-slate-900">
+            <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
               Confirm Item Deletion
             </h3>
-            <p className="text-xs text-slate-600">
+            <p className="text-xs text-stone-600">
               Are you sure you want to delete this item? This action will immediately remove it from the live site view.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                className="px-4 py-2 rounded-lg border border-[#E8DFD0] text-xs font-semibold text-stone-700 hover:bg-stone-100 cursor-pointer"
               >
                 Cancel
               </button>
@@ -1554,7 +1554,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   if (activeContentType === 'services') handleDeleteService(deleteConfirmId);
                   if (activeContentType === 'achievements') handleDeleteAchievement(deleteConfirmId);
                 }}
-                className="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs"
+                className="px-4 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs cursor-pointer"
               >
                 Yes, Delete Item
               </button>

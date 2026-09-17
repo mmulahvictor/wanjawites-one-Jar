@@ -1,20 +1,45 @@
 @import "tailwindcss";
 
+@theme {
+  --color-warm-white: #FFFBF5;
+  --color-soft-black: #1A1A1A;
+  --color-brand-red: #C83C2E;
+  --color-brand-blue: #3A6EA5;
+  --color-brand-orange: #E88D4D;
+  
+  --color-brand-red-hover: #B03225;
+  --color-brand-blue-hover: #2E5A88;
+  --color-brand-orange-hover: #D67A38;
+
+  --color-warm-surface: #FAF5ED;
+  --color-warm-card: #FFFFFF;
+  --color-warm-muted: #F2EAE0;
+  --color-warm-border: #E8DFD0;
+  --color-warm-border-dark: #D4C6B2;
+}
+
 @layer base {
   :root {
     --font-serif: 'Cormorant Garamond', Georgia, serif;
     --font-display: 'Playfair Display', Georgia, serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    
+    --color-warm-white: #FFFBF5;
+    --color-soft-black: #1A1A1A;
+    --color-brand-red: #C83C2E;
+    --color-brand-blue: #3A6EA5;
+    --color-brand-orange: #E88D4D;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #0F172A;
-    background-color: #F8FAFC;
+    color: #1A1A1A;
+    background-color: #FFFBF5;
   }
 
   h1, h2, h3, .font-serif-heading {
     font-family: var(--font-display);
+    color: #1A1A1A;
   }
 
   .font-poem {
@@ -22,31 +47,46 @@
   }
 }
 
-/* Custom scrollbar for poetry readers and video galleries */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Accessible High Contrast Mode (WCAG AAA) */
+body.high-contrast-mode {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
 }
-::-webkit-scrollbar-track {
-  background: #F1F5F9;
+body.high-contrast-mode * {
+  border-color: #FFFFFF !important;
 }
-::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+body.high-contrast-mode button,
+body.high-contrast-mode a {
+  outline: 2px solid #E88D4D !important;
 }
 
-/* Paper texture accent */
+/* Custom warm scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFBF5;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4C6B2;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3A6EA5;
+}
+
+/* Paper texture accent matching Warm White palette */
 .paper-texture {
-  background-color: #FFFFFF;
-  background-image: radial-gradient(#E2E8F0 0.75px, transparent 0.75px);
+  background-color: #FFFBF5;
+  background-image: radial-gradient(#E8DFD0 0.85px, transparent 0.85px);
   background-size: 16px 16px;
 }
 
 .jar-glow {
-  box-shadow: 0 0 30px -5px rgba(79, 70, 229, 0.12);
+  box-shadow: 0 0 35px -5px rgba(200, 60, 46, 0.15);
 }
 
-
+.blue-glow {
+  box-shadow: 0 0 35px -5px rgba(58, 110, 165, 0.18);
+}

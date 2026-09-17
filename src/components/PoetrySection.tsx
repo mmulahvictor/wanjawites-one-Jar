@@ -49,15 +49,15 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-16">
       
       {/* Header Banner */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-slate-900 text-white space-y-4 border border-slate-800 shadow-sm">
-        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-indigo-400">
+      <div className="p-8 sm:p-12 rounded-2xl bg-[#1A1A1A] text-white space-y-4 border border-[#2A2A2A] shadow-sm">
+        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E88D4D]">
           <BookOpen className="w-4 h-4" />
           <span>One-Jar Poetry Archive</span>
         </div>
-        <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-white">
+        <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5]">
           The Poetry & Performance Identity
         </h1>
-        <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
+        <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed">
           "What Wanja's poetry sounds, feels, and looks like." An archive of unsealed written stanzas, spoken-word videos, and live performance documentation.
         </p>
 
@@ -65,30 +65,30 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
         <div className="pt-4 flex flex-wrap gap-2 text-xs font-semibold">
           <button
             onClick={() => setActiveSubTab('all-poems')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
               activeSubTab === 'all-poems'
-                ? 'bg-indigo-600 text-white font-bold'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                ? 'bg-[#C83C2E] text-white font-bold'
+                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
             }`}
           >
             Poems Collection ({publishedPoems.length})
           </button>
           <button
             onClick={() => setActiveSubTab('performances')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
               activeSubTab === 'performances'
-                ? 'bg-indigo-600 text-white font-bold'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                ? 'bg-[#C83C2E] text-white font-bold'
+                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
             }`}
           >
             Spoken-Word Performances ({publishedVideos.length})
           </button>
           <button
             onClick={() => setActiveSubTab('gallery')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
               activeSubTab === 'gallery'
-                ? 'bg-indigo-600 text-white font-bold'
-                : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                ? 'bg-[#C83C2E] text-white font-bold'
+                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
             }`}
           >
             Performance Gallery ({GALLERY.length})
@@ -101,34 +101,34 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
         <div className="space-y-8">
           
           {/* Controls: Search & Tags */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-white border border-slate-200 shadow-xs">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-white border border-[#E8DFD0] shadow-xs">
             
             {/* Search Input */}
             <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
               <input
                 type="text"
                 placeholder="Search poems by title or keyword..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#3A6EA5]"
               />
             </div>
 
             {/* Tag Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
-              <span className="text-xs text-slate-500 font-semibold mr-1 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5" />
+              <span className="text-xs text-[#1A1A1A]/70 font-semibold mr-1 flex items-center gap-1">
+                <Tag className="w-3.5 h-3.5 text-[#E88D4D]" />
                 <span>Theme:</span>
               </span>
               {allTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                     selectedTag === tag
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-[#3A6EA5] text-white'
+                      : 'bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A]/80 hover:border-[#3A6EA5]'
                   }`}
                 >
                   {tag}
@@ -143,39 +143,39 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
               <div
                 key={poem.id}
                 onClick={() => onOpenPoem(poem)}
-                className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-indigo-500 shadow-sm transition-all cursor-pointer flex flex-col justify-between space-y-6 group"
+                className="p-6 rounded-2xl bg-white border border-[#E8DFD0] hover:border-[#C83C2E] shadow-sm transition-all cursor-pointer flex flex-col justify-between space-y-6 group"
               >
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span className="px-2.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-bold border border-indigo-100">
+                  <div className="flex items-center justify-between text-xs text-[#1A1A1A]/60">
+                    <span className="px-2.5 py-0.5 rounded bg-[#C83C2E]/10 text-[#C83C2E] font-bold border border-[#C83C2E]/20">
                       {poem.year}
                     </span>
                     <span>{poem.readTimeMinutes} min read</span>
                   </div>
 
-                  <h3 className="font-serif text-2xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="font-serif text-2xl font-bold text-[#1A1A1A] group-hover:text-[#C83C2E] transition-colors">
                     {poem.title}
                   </h3>
 
-                  <p className="font-poem italic text-slate-600 text-base leading-relaxed line-clamp-4 pl-3 border-l-2 border-indigo-500/40">
+                  <p className="font-poem italic text-[#1A1A1A]/75 text-base leading-relaxed line-clamp-4 pl-3 border-l-2 border-[#C83C2E]/40">
                     "{poem.stanzas[0]}"
                   </p>
 
-                  <p className="text-xs text-slate-500 line-clamp-2">
+                  <p className="text-xs text-[#1A1A1A]/65 line-clamp-2">
                     {poem.excerpt}
                   </p>
                 </div>
 
-                <div className="space-y-3 pt-4 border-t border-slate-100">
+                <div className="space-y-3 pt-4 border-t border-[#E8DFD0]">
                   <div className="flex flex-wrap gap-1">
                     {poem.tags.map((t) => (
-                      <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">
+                      <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A]/70 font-medium">
                         #{t}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between text-xs font-semibold text-indigo-600">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#3A6EA5] group-hover:text-[#C83C2E]">
                     <span className="flex items-center gap-1">
                       <Volume2 className="w-3.5 h-3.5" />
                       <span>Read & Listen to Poem</span>
@@ -188,7 +188,7 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
           </div>
 
           {filteredPoems.length === 0 && (
-            <div className="p-12 text-center text-slate-500 bg-white border border-slate-200 rounded-2xl">
+            <div className="p-12 text-center text-[#1A1A1A]/60 bg-white border border-[#E8DFD0] rounded-2xl">
               No poems found matching your search query. Try resetting your theme filter.
             </div>
           )}
@@ -203,7 +203,7 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
               <div
                 key={video.id}
                 onClick={() => onOpenVideo(video)}
-                className="p-6 rounded-2xl bg-white border border-slate-200 hover:border-indigo-500 shadow-sm transition-all cursor-pointer space-y-4 group"
+                className="p-6 rounded-2xl bg-white border border-[#E8DFD0] hover:border-[#3A6EA5] shadow-sm transition-all cursor-pointer space-y-4 group"
               >
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
                   <img
@@ -212,7 +212,7 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-[#C83C2E] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
                       <Play className="w-6 h-6 ml-1" />
                     </div>
                   </div>
@@ -222,13 +222,13 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                  <div className="text-xs font-bold text-[#E88D4D] uppercase tracking-wider">
                     {video.event} · {video.date}
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
+                  <h3 className="font-serif text-xl font-bold text-[#1A1A1A] group-hover:text-[#3A6EA5] transition-colors">
                     {video.title}
                   </h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
+                  <p className="text-xs text-[#1A1A1A]/70 leading-relaxed">
                     {video.description}
                   </p>
                 </div>
@@ -247,10 +247,10 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
               <button
                 key={cat}
                 onClick={() => setSelectedGalleryCategory(cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
                   selectedGalleryCategory === cat
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    ? 'bg-[#3A6EA5] text-white'
+                    : 'bg-white border border-[#E8DFD0] text-[#1A1A1A]/70 hover:bg-[#FAF5ED]'
                 }`}
               >
                 {cat}
@@ -260,14 +260,14 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredGallery.map((g) => (
-              <div key={g.id} className="rounded-2xl overflow-hidden bg-white border border-slate-200 shadow-xs space-y-3 p-3">
-                <div className="aspect-square rounded-xl overflow-hidden bg-slate-100">
+              <div key={g.id} className="rounded-2xl overflow-hidden bg-white border border-[#E8DFD0] shadow-xs space-y-3 p-3">
+                <div className="aspect-square rounded-xl overflow-hidden bg-stone-100">
                   <img src={g.imageUrl} alt={g.title} className="w-full h-full object-cover hover:scale-105 transition-transform" />
                 </div>
                 <div className="px-1 space-y-1">
-                  <div className="text-[10px] uppercase font-bold text-indigo-600">{g.category} · {g.location}</div>
-                  <h4 className="font-serif text-sm font-bold text-slate-900">{g.title}</h4>
-                  <p className="text-xs text-slate-500">{g.caption}</p>
+                  <div className="text-[10px] uppercase font-bold text-[#E88D4D]">{g.category} · {g.location}</div>
+                  <h4 className="font-serif text-sm font-bold text-[#1A1A1A]">{g.title}</h4>
+                  <p className="text-xs text-[#1A1A1A]/60">{g.caption}</p>
                 </div>
               </div>
             ))}
@@ -276,18 +276,18 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
       )}
 
       {/* Booking Prompt Banner */}
-      <div className="p-8 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="p-8 rounded-2xl bg-white border border-[#E8DFD0] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
         <div>
-          <h3 className="font-serif text-2xl font-bold text-slate-900">
+          <h3 className="font-serif text-2xl font-bold text-[#1A1A1A]">
             Commission an Original Spoken Word Piece
           </h3>
-          <p className="text-xs text-slate-600 mt-1">
+          <p className="text-xs text-[#1A1A1A]/70 mt-1">
             Wanja collaborates with cultural institutions, campaigns, and festivals for live recitals & commissions.
           </p>
         </div>
         <button
           onClick={onOpenBooking}
-          className="px-6 py-3 rounded-lg bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 whitespace-nowrap shadow-xs"
+          className="px-6 py-3 rounded-lg bg-[#C83C2E] text-white text-xs font-semibold hover:bg-[#B03225] whitespace-nowrap shadow-xs cursor-pointer"
         >
           Request Spoken Word Booking
         </button>
