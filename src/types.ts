@@ -107,7 +107,7 @@ export interface SiteSettings {
   announcementActive?: boolean;
 }
 
-export type CmsContentType = 'poems' | 'articles' | 'videos' | 'services' | 'achievements' | 'settings';
+export type CmsContentType = 'poems' | 'articles' | 'videos' | 'services' | 'achievements' | 'settings' | 'team';
 
 export interface AccessibilitySettings {
   fontSize: 'normal' | 'large' | 'xlarge';

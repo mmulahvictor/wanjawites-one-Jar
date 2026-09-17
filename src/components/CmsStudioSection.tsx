@@ -17,8 +17,13 @@ import {
   FileText, BookOpen, Video, Briefcase, Award, Settings, 
   Plus, Edit3, Trash2, Eye, EyeOff, Download, Upload, RefreshCw, 
   Check, X, Search, Filter, Sparkles, Tag, ArrowLeft, Layout, CheckCircle2, AlertCircle, Youtube,
-  Lock, ShieldCheck, KeyRound, LogOut
+  Lock, ShieldCheck, KeyRound, LogOut, Users, Shield
 } from 'lucide-react';
+import { 
+  getCurrentAdmin, hasAdminPrivilege, logoutAdmin, 
+  AUTH_CHANGE_EVENT, AdminUser 
+} from '../lib/authService';
+import { UserManagementView } from './UserManagementView';
 
 interface CmsStudioSectionProps {
   onNavigateTab: (tab: NavigationTab) => void;
@@ -48,30 +53,19 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Restricted access state
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('wanja_admin_authenticated') === 'true';
-  });
-  const [passcodeInput, setPasscodeInput] = useState('');
-  const [passcodeError, setPasscodeError] = useState(false);
-  const [showPasscode, setShowPasscode] = useState(false);
+  // Cryptographic RBAC Session State
+  const [admin, setAdmin] = useState<AdminUser | null>(getCurrentAdmin());
 
-  const handleAuthenticate = (e: React.FormEvent) => {
-    e.preventDefault();
-    const validPasscodes = ['wanja2026', 'admin', 'wanja', '1234', 'wanjawrites'];
-    if (validPasscodes.includes(passcodeInput.trim().toLowerCase())) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem('wanja_admin_authenticated', 'true');
-      setPasscodeError(false);
-      setPasscodeInput('');
-    } else {
-      setPasscodeError(true);
-    }
-  };
+  useEffect(() => {
+    const handleAuth = () => setAdmin(getCurrentAdmin());
+    window.addEventListener(AUTH_CHANGE_EVENT, handleAuth);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, handleAuth);
+  }, []);
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem('wanja_admin_authenticated');
+    logoutAdmin();
+    setAdmin(null);
+    showToast('Logged out of CMS Studio.');
   };
 
   // Editor modal state
@@ -114,6 +108,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   // ---------------- POEM MUTATIONS ----------------
   const handleCreatePoem = () => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot create content.');
+      return;
+    }
     const newPoem: Poem = {
       id: 'poem_' + Date.now(),
       title: 'New Spoken Poem',
@@ -136,6 +134,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const handleSavePoem = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit content.');
+      return;
+    }
     if (!editingItem.title) return;
     savePoem(editingItem);
     setEditingItem(null);
@@ -144,12 +146,20 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleDeletePoem = (id: string) => {
+    if (!hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete records.');
+      return;
+    }
     deletePoem(id);
     setDeleteConfirmId(null);
     showToast('Poem deleted.');
   };
 
   const handleTogglePoemStatus = (poem: Poem) => {
+    if (!hasAdminPrivilege('canPublishContent')) {
+      showToast('Permission denied: Your role cannot toggle publish status.');
+      return;
+    }
     const newStatus: ContentStatus = poem.status === 'published' ? 'draft' : 'published';
     savePoem({ ...poem, status: newStatus });
     showToast(`Poem "${poem.title}" status changed to ${newStatus}.`);
@@ -157,6 +167,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   // ---------------- ARTICLE MUTATIONS ----------------
   const handleCreateArticle = () => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot create articles.');
+      return;
+    }
     const newArticle: Article = {
       id: 'art_' + Date.now(),
       type: 'blog',
@@ -178,6 +192,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const handleSaveArticle = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit articles.');
+      return;
+    }
     if (!editingItem.title) return;
     saveArticle(editingItem);
     setEditingItem(null);
@@ -186,12 +204,20 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleDeleteArticle = (id: string) => {
+    if (!hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete articles.');
+      return;
+    }
     deleteArticle(id);
     setDeleteConfirmId(null);
     showToast('Article deleted.');
   };
 
   const handleToggleArticleStatus = (article: Article) => {
+    if (!hasAdminPrivilege('canPublishContent')) {
+      showToast('Permission denied: Your role cannot toggle publish status.');
+      return;
+    }
     const newStatus: ContentStatus = article.status === 'published' ? 'draft' : 'published';
     saveArticle({ ...article, status: newStatus });
     showToast(`Article status changed to ${newStatus}.`);
@@ -199,6 +225,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   // ---------------- VIDEO MUTATIONS ----------------
   const handleCreateVideo = () => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot create video entries.');
+      return;
+    }
     const newVid: VideoItem = {
       id: 'vid_' + Date.now(),
       title: 'New Video Performance',
@@ -216,6 +246,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const handleSaveVideo = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit video entries.');
+      return;
+    }
     if (!editingItem.title) return;
     saveVideo(editingItem);
     setEditingItem(null);
@@ -224,6 +258,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleDeleteVideo = (id: string) => {
+    if (!hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete video items.');
+      return;
+    }
     deleteVideo(id);
     setDeleteConfirmId(null);
     showToast('Video item deleted.');
@@ -231,6 +269,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   // ---------------- SERVICE MUTATIONS ----------------
   const handleCreateService = () => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot create services.');
+      return;
+    }
     const newService: Service = {
       id: 'srv_' + Date.now(),
       title: 'New Professional Service',
@@ -248,6 +290,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const handleSaveService = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit services.');
+      return;
+    }
     saveService(editingItem);
     setEditingItem(null);
     setIsCreatingNew(false);
@@ -255,6 +301,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleDeleteService = (id: string) => {
+    if (!hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete services.');
+      return;
+    }
     deleteService(id);
     setDeleteConfirmId(null);
     showToast('Service deleted.');
@@ -262,6 +312,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   // ---------------- ACHIEVEMENT MUTATIONS ----------------
   const handleCreateAchievement = () => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot create honors.');
+      return;
+    }
     const newAch: Achievement = {
       id: 'ach_' + Date.now(),
       year: new Date().getFullYear().toString(),
@@ -278,6 +332,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const handleSaveAchievement = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit honors.');
+      return;
+    }
     saveAchievement(editingItem);
     setEditingItem(null);
     setIsCreatingNew(false);
@@ -285,6 +343,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleDeleteAchievement = (id: string) => {
+    if (!hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete honors.');
+      return;
+    }
     deleteAchievement(id);
     setDeleteConfirmId(null);
     showToast('Achievement deleted.');
@@ -293,12 +355,29 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   // ---------------- SITE SETTINGS SAVE ----------------
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasAdminPrivilege('canManageSiteSettings')) {
+      showToast('Permission denied: Site configuration requires administrative privileges.');
+      return;
+    }
     saveSiteSettings(siteSettings);
     showToast('Global Site Settings updated successfully!');
   };
 
+  const handleExportJson = () => {
+    if (!hasAdminPrivilege('canImportExportData')) {
+      showToast('Permission denied: You do not have data backup privileges.');
+      return;
+    }
+    exportCmsData();
+    showToast('CMS backup data downloaded as JSON.');
+  };
+
   // Import JSON handler
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!hasAdminPrivilege('canImportExportData')) {
+      showToast('Permission denied: You do not have data backup privileges.');
+      return;
+    }
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -316,6 +395,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   };
 
   const handleResetData = () => {
+    if (!hasAdminPrivilege('canResetData')) {
+      showToast('Permission denied: Only Super Administrators can reset the system.');
+      return;
+    }
     if (window.confirm('Are you sure you want to reset all CMS content back to the default seed dataset? Custom additions will be replaced.')) {
       resetCmsData();
       showToast('CMS data reset to default seed content.');
@@ -344,102 +427,33 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     return matchesQuery && matchesStatus;
   });
 
-  if (!isAuthenticated) {
+  if (!admin) {
     return (
-      <div className="max-w-xl mx-auto px-4 py-12 sm:py-20 animate-fadeIn">
-        <div className="bg-[#FFFBF5] rounded-2xl border border-[#E8DFD0] shadow-xl overflow-hidden">
-          {/* Header Banner */}
-          <div className="bg-[#1A1A1A] p-8 text-white text-center relative overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[#C83C2E]/20 rounded-full blur-2xl pointer-events-none" />
-            <div className="w-16 h-16 rounded-2xl bg-[#C83C2E]/20 border border-[#C83C2E]/30 text-[#E88D4D] flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Lock className="w-8 h-8" />
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A2A2A] border border-[#E88D4D]/40 text-[#E88D4D] text-xs font-bold uppercase tracking-wider mb-2">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Restricted Admin Access</span>
-            </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#FFFBF5]">
-              Administrator Login
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-300 max-w-md mx-auto mt-2 leading-relaxed">
-              This area is restricted to Faith Wanja (One-Jar Poetry) and authorized site managers.
-            </p>
-          </div>
-
-          {/* Form Body */}
-          <form onSubmit={handleAuthenticate} className="p-6 sm:p-8 space-y-5 bg-[#FFFBF5]">
-            {passcodeError && (
-              <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs sm:text-sm flex items-start gap-3 animate-fadeIn">
-                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold">Access Denied</p>
-                  <p className="text-xs text-red-600 mt-0.5">
-                    Invalid passcode. Default administrator PIN is <code className="bg-red-100 px-1.5 py-0.5 rounded font-mono font-bold text-red-800">wanja2026</code>.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label htmlFor="admin-passcode-input" className="block text-xs font-bold uppercase tracking-wider text-[#1A1A1A]">
-                Administrator Passcode / PIN
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-                  <KeyRound className="w-4 h-4" />
-                </div>
-                <input
-                  id="admin-passcode-input"
-                  type={showPasscode ? "text" : "password"}
-                  value={passcodeInput}
-                  onChange={(e) => {
-                    setPasscodeInput(e.target.value);
-                    if (passcodeError) setPasscodeError(false);
-                  }}
-                  placeholder="Enter administrator passcode..."
-                  required
-                  autoFocus
-                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-[#E8DFD0] bg-[#FAF5ED] focus:bg-white text-[#1A1A1A] text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E] focus:border-transparent transition-all shadow-xs"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPasscode(!showPasscode)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none cursor-pointer"
-                  title={showPasscode ? "Hide passcode" : "Show passcode"}
-                >
-                  {showPasscode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A] text-xs flex items-center justify-between gap-2">
-              <span className="font-medium text-stone-600">Default Administrator PIN:</span>
-              <code className="bg-white px-2 py-1 rounded border border-[#E8DFD0] font-mono text-[#C83C2E] font-bold select-all">
-                wanja2026
-              </code>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-              <button
-                type="submit"
-                id="unlock-admin-btn"
-                className="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#C83C2E] hover:bg-[#B03225] text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Unlock Admin Portal</span>
-              </button>
-
-              <button
-                type="button"
-                id="cancel-admin-btn"
-                onClick={() => onNavigateTab('home')}
-                className="w-full sm:w-auto py-3 px-5 rounded-xl border border-[#E8DFD0] bg-white hover:bg-stone-50 text-[#1A1A1A] font-semibold text-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Exit</span>
-              </button>
-            </div>
-          </form>
+      <div className="max-w-md mx-auto my-16 p-8 bg-[#1A1A1A] border border-[#333333] rounded-2xl text-center text-white space-y-4 animate-fadeIn">
+        <div className="w-14 h-14 rounded-2xl bg-[#C83C2E]/20 border border-[#C83C2E]/30 text-[#E88D4D] flex items-center justify-center mx-auto shadow-inner">
+          <Lock className="w-7 h-7" />
+        </div>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#2A2A2A] border border-[#E88D4D]/40 text-[#E88D4D] text-xs font-bold uppercase tracking-wider">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>Restricted Admin Portal</span>
+        </div>
+        <h2 className="font-serif text-2xl font-bold text-[#FFFBF5]">Authentication Required</h2>
+        <p className="text-xs text-stone-400 leading-relaxed max-w-sm mx-auto">
+          You must be logged in with a cryptographically verified administrator account to manage One-Jar content.
+        </p>
+        <div className="pt-2 flex justify-center gap-3">
+          <button
+            onClick={() => onNavigateTab('cms')}
+            className="px-5 py-2.5 bg-[#C83C2E] hover:bg-[#B03225] rounded-xl text-xs font-bold text-white shadow-md cursor-pointer transition-all"
+          >
+            Sign In to Portal
+          </button>
+          <button
+            onClick={() => onNavigateTab('home')}
+            className="px-4 py-2.5 border border-stone-700 hover:bg-stone-800 rounded-xl text-xs font-semibold text-stone-300 cursor-pointer transition-all"
+          >
+            Return to Public Site
+          </button>
         </div>
       </div>
     );
@@ -484,31 +498,37 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               <span>View Live Poetry Page</span>
             </button>
 
-            <button
-              id="cms-export-btn"
-              onClick={exportCmsData}
-              className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
-              title="Export all CMS data to JSON backup file"
-            >
-              <Download className="w-4 h-4 text-[#E88D4D]" />
-              <span>Export JSON</span>
-            </button>
+            {hasAdminPrivilege('canImportExportData') && (
+              <button
+                id="cms-export-btn"
+                onClick={handleExportJson}
+                className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Export all CMS data to JSON backup file"
+              >
+                <Download className="w-4 h-4 text-[#E88D4D]" />
+                <span>Export JSON</span>
+              </button>
+            )}
 
-            <label className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors cursor-pointer flex items-center gap-1.5">
-              <Upload className="w-4 h-4 text-[#3A6EA5]" />
-              <span>Import JSON</span>
-              <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
-            </label>
+            {hasAdminPrivilege('canImportExportData') && (
+              <label className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-stone-200 border border-[#3A3A3A] transition-colors cursor-pointer flex items-center gap-1.5">
+                <Upload className="w-4 h-4 text-[#3A6EA5]" />
+                <span>Import JSON</span>
+                <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
+              </label>
+            )}
 
-            <button
-              id="cms-reset-btn"
-              onClick={handleResetData}
-              className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-[#E88D4D] border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
-              title="Reset data back to default seed state"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span>Reset Defaults</span>
-            </button>
+            {hasAdminPrivilege('canResetData') && (
+              <button
+                id="cms-reset-btn"
+                onClick={handleResetData}
+                className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-[#E88D4D] border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
+                title="Reset data back to default seed state"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Reset Defaults</span>
+              </button>
+            )}
 
             <button
               id="cms-logout-btn"
@@ -603,10 +623,25 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <Settings className="w-4 h-4" />
             <span>Site Config</span>
           </button>
+
+          {hasAdminPrivilege('canManageUsers') && (
+            <button
+              id="cms-tab-team"
+              onClick={() => { setActiveContentType('team'); setEditingItem(null); }}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeContentType === 'team'
+                  ? 'bg-[#C83C2E] text-white shadow-xs'
+                  : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Team & Privileges</span>
+            </button>
+          )}
         </div>
 
         {/* Primary Create Button */}
-        {activeContentType !== 'settings' && (
+        {activeContentType !== 'settings' && activeContentType !== 'team' && hasAdminPrivilege('canEditContent') && (
           <button
             id="cms-add-new-btn"
             onClick={() => {
@@ -625,7 +660,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       </div>
 
       {/* Main Content Workspace */}
-      {activeContentType !== 'settings' && (
+      {activeContentType !== 'settings' && activeContentType !== 'team' && (
         <div className="space-y-6">
           
           {/* Search & Filter Toolbar */}
@@ -1098,6 +1133,11 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             </button>
           </div>
         </form>
+      )}
+
+      {/* TEAM & RBAC MANAGEMENT WORKSPACE */}
+      {activeContentType === 'team' && admin && (
+        <UserManagementView currentAdmin={admin} onToast={showToast} />
       )}
 
       {/* ---------------- EDIT MODAL / DRAWER FOR POEM ---------------- */}
