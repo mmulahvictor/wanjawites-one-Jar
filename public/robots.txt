@@ -1,0 +1,15 @@
+# https://www.robotstxt.org/robotstxt.html
+# Robots exclusion configuration for WanjaWrites × One-Jar Poetry
+
+User-agent: *
+Disallow: /admin
+Disallow: /admin/
+Disallow: /cms
+Disallow: /cms/
+Disallow: /studio
+Disallow: /studio/
+Disallow: /api/
+Allow: /
+
+# Canonical Sitemap
+Sitemap: https://wanjawrites.africa/sitemap.xml

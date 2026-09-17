@@ -1,0 +1,6 @@
+{
+  "name": "WanjaWrites × One-Jar Poetry",
+  "description": "The official digital home and poetry portfolio for WanjaWrites and One-Jar Poetry — featuring poems, spoken word, essays, reviews, EPK, and booking platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
