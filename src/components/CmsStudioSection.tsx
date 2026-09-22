@@ -17,13 +17,14 @@ import {
   FileText, BookOpen, Video, Briefcase, Award, Settings, 
   Plus, Edit3, Trash2, Eye, EyeOff, Download, Upload, RefreshCw, 
   Check, X, Search, Filter, Sparkles, Tag, ArrowLeft, Layout, CheckCircle2, AlertCircle, Youtube,
-  Lock, ShieldCheck, KeyRound, LogOut, Users, Shield
+  Lock, ShieldCheck, KeyRound, LogOut, Users, Shield, Play, ExternalLink, Calendar, Clock, MapPin
 } from 'lucide-react';
 import { 
   getCurrentAdmin, hasAdminPrivilege, logoutAdmin, 
   AUTH_CHANGE_EVENT, AdminUser 
 } from '../lib/authService';
 import { UserManagementView } from './UserManagementView';
+import { VideoEditorModal } from './VideoEditorModal';
 
 interface CmsStudioSectionProps {
   onNavigateTab: (tab: NavigationTab) => void;
@@ -73,6 +74,11 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+
+  // Dedicated Video Editor Modal State
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [editingVideo, setEditingVideo] = useState<VideoItem | null>(null);
+  const [isVideoCreatingNew, setIsVideoCreatingNew] = useState(false);
 
   // Load store data
   const loadData = () => {
@@ -231,30 +237,41 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     }
     const newVid: VideoItem = {
       id: 'vid_' + Date.now(),
-      title: 'New Video Performance',
-      event: 'Stage Recital / Event Name',
+      title: '',
+      event: 'One-Jar Poetry Recital',
       date: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-      youtubeId: 'dQw4w9WgXcQ',
-      duration: '05:00',
-      description: 'Description of live video recording...',
+      youtubeId: '',
+      duration: '04:30',
+      description: '',
       category: 'spoken_word',
       status: 'published'
     };
-    setEditingItem(newVid);
-    setIsCreatingNew(true);
+    setEditingVideo(newVid);
+    setIsVideoCreatingNew(true);
+    setVideoModalOpen(true);
   };
 
-  const handleSaveVideo = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditVideo = (video: VideoItem) => {
     if (!hasAdminPrivilege('canEditContent')) {
       showToast('Permission denied: Your role cannot edit video entries.');
       return;
     }
-    if (!editingItem.title) return;
-    saveVideo(editingItem);
-    setEditingItem(null);
-    setIsCreatingNew(false);
-    showToast(`Video "${editingItem.title}" saved!`);
+    setEditingVideo(video);
+    setIsVideoCreatingNew(false);
+    setVideoModalOpen(true);
+  };
+
+  const handleSaveVideo = (savedVideo: VideoItem) => {
+    if (!hasAdminPrivilege('canEditContent')) {
+      showToast('Permission denied: Your role cannot edit video entries.');
+      return;
+    }
+    saveVideo(savedVideo);
+    setVideos(getVideos());
+    setVideoModalOpen(false);
+    setEditingVideo(null);
+    setIsVideoCreatingNew(false);
+    showToast(`Video "${savedVideo.title}" saved successfully!`);
   };
 
   const handleDeleteVideo = (id: string) => {
@@ -264,7 +281,19 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     }
     deleteVideo(id);
     setDeleteConfirmId(null);
+    setVideos(getVideos());
     showToast('Video item deleted.');
+  };
+
+  const handleToggleVideoStatus = (video: VideoItem) => {
+    if (!hasAdminPrivilege('canPublishContent')) {
+      showToast('Permission denied: Your role cannot change publish status.');
+      return;
+    }
+    const newStatus: ContentStatus = video.status === 'published' ? 'draft' : 'published';
+    saveVideo({ ...video, status: newStatus });
+    setVideos(getVideos());
+    showToast(`Video marked as ${newStatus}.`);
   };
 
   // ---------------- SERVICE MUTATIONS ----------------
@@ -865,6 +894,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             {/* VIDEOS LIST */}
             {activeContentType === 'videos' && (
               <div className="space-y-4">
+                {/* Channel banner and quick actions */}
                 <div className="p-4 rounded-xl bg-[#1A1A1A] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#2A2A2A]">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-xs font-bold text-[#E88D4D]">
@@ -872,75 +902,186 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       <span>YouTube Channel Integration (@one_jar_poetry)</span>
                     </div>
                     <p className="text-xs text-stone-300">
-                      Manage videos synced from <a href="https://www.youtube.com/@one_jar_poetry" target="_blank" rel="noopener noreferrer" className="text-[#FAF5ED] underline font-semibold">@one_jar_poetry</a>. Videos updated here sync live across the app.
+                      Sync from <a href="https://www.youtube.com/@one_jar_poetry" target="_blank" rel="noopener noreferrer" className="text-[#FAF5ED] underline font-semibold">@one_jar_poetry</a> or add any live performance link with 1-click metadata detection.
                     </p>
                   </div>
-                  <button
-                    onClick={async () => {
-                      const { syncYouTubeChannelVideos } = await import('../lib/youtubeChannelService');
-                      const result = await syncYouTubeChannelVideos();
-                      setVideos(result.videos);
-                      showToast(result.message);
-                    }}
-                    className="px-3.5 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Sync Channel Videos</span>
-                  </button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      onClick={async () => {
+                        const { syncYouTubeChannelVideos } = await import('../lib/youtubeChannelService');
+                        const result = await syncYouTubeChannelVideos();
+                        setVideos(result.videos);
+                        showToast(result.message);
+                      }}
+                      className="px-3.5 py-2 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] border border-[#3A3A3A] text-stone-200 text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>Sync Channel</span>
+                    </button>
+
+                    <button
+                      onClick={handleCreateVideo}
+                      className="px-3.5 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add Video</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="divide-y divide-[#E8DFD0]">
-                  {filteredVideos.map((video) => (
-                  <div key={video.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
-                    <div className="space-y-1.5 max-w-2xl">
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                          (video.status || 'published') === 'published'
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border border-amber-200'
-                        }`}>
-                          {video.status || 'published'}
-                        </span>
-                        <span className="text-xs text-[#3A6EA5] font-bold">{video.event}</span>
-                        <span className="text-xs text-stone-400 font-medium">({video.duration})</span>
-                      </div>
-                      <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
-                        {video.title}
-                      </h3>
-                      <p className="text-xs text-stone-600 line-clamp-1">
-                        {video.description}
+                {filteredVideos.length === 0 ? (
+                  <div className="p-12 text-center bg-white rounded-xl border border-[#E8DFD0] space-y-4">
+                    <div className="w-12 h-12 rounded-full bg-[#FAF5ED] text-stone-400 mx-auto flex items-center justify-center border border-[#E8DFD0]">
+                      <Youtube className="w-6 h-6 text-[#C83C2E]" />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-serif text-lg font-bold text-[#1A1A1A]">No performance videos found</h4>
+                      <p className="text-xs text-stone-500 max-w-md mx-auto">
+                        No videos match your active filter. Add a new stage performance or sync directly from the @one_jar_poetry channel.
                       </p>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      {onPreviewVideo && (
-                        <button
-                          onClick={() => onPreviewVideo(video)}
-                          className="p-2 rounded-lg text-stone-600 hover:text-[#C83C2E] hover:bg-[#C83C2E]/10 border border-[#E8DFD0] transition-colors cursor-pointer"
-                          title="Preview video modal"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() => { setEditingItem(video); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteConfirmId(video.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={handleCreateVideo}
+                      className="px-4 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add First Video</span>
+                    </button>
                   </div>
-                ))}
-                </div>
+                ) : (
+                  <div className="divide-y divide-[#E8DFD0] bg-white rounded-xl border border-[#E8DFD0] overflow-hidden">
+                    {filteredVideos.map((video) => {
+                      const linkedPoem = video.poemSlug ? poems.find(p => p.slug === video.poemSlug) : null;
+                      const thumbUrl = video.thumbnailUrl || (video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : '/images/wanja_bw_stage.jpg');
+
+                      return (
+                        <div key={video.id} className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-[#FAF5ED]/60 transition-colors">
+                          <div className="flex flex-col sm:flex-row items-start gap-4">
+                            {/* 16:9 Thumbnail with direct watch trigger */}
+                            <div 
+                              onClick={() => onPreviewVideo && onPreviewVideo(video)}
+                              className="relative w-full sm:w-40 sm:h-24 aspect-video sm:aspect-auto rounded-lg overflow-hidden bg-stone-900 border border-[#E8DFD0] shrink-0 group cursor-pointer"
+                              title="Click to preview video playback"
+                            >
+                              <img
+                                src={thumbUrl}
+                                alt={video.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = '/images/wanja_bw_stage.jpg';
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 flex items-center justify-center transition-colors">
+                                <div className="w-8 h-8 rounded-full bg-[#C83C2E] text-white flex items-center justify-center shadow-md">
+                                  <Play className="w-4 h-4 ml-0.5 fill-current" />
+                                </div>
+                              </div>
+                              <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/80 text-white rounded text-[10px] font-mono">
+                                {video.duration}
+                              </span>
+                            </div>
+
+                            {/* Video Details */}
+                            <div className="space-y-1.5">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleVideoStatus(video)}
+                                  className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full cursor-pointer transition-all ${
+                                    (video.status || 'published') === 'published'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                                      : 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                                  }`}
+                                  title="Click to toggle between published and draft"
+                                >
+                                  {(video.status || 'published') === 'published' ? '✓ Published' : '✎ Draft'}
+                                </button>
+                                
+                                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#3A6EA5]/15 text-[#3A6EA5]">
+                                  {video.category ? video.category.replace('_', ' ') : 'Spoken Word'}
+                                </span>
+
+                                <span className="text-xs text-stone-600 font-semibold flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-stone-400" />
+                                  <span>{video.event}</span>
+                                </span>
+
+                                <span className="text-xs text-stone-400">· {video.date}</span>
+                              </div>
+
+                              <h3 className="font-serif text-lg font-bold text-[#1A1A1A] hover:text-[#C83C2E] transition-colors cursor-pointer"
+                                onClick={() => handleEditVideo(video)}
+                              >
+                                {video.title}
+                              </h3>
+
+                              <p className="text-xs text-stone-600 line-clamp-1 max-w-xl">
+                                {video.description}
+                              </p>
+
+                              {/* Connections pills */}
+                              <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                                {linkedPoem && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#FAF5ED] text-[#E88D4D] border border-[#E8DFD0] text-[10px] font-semibold">
+                                    <BookOpen className="w-3 h-3" />
+                                    <span>Poem: "{linkedPoem.title}"</span>
+                                  </span>
+                                )}
+                                {video.transcript && (
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 text-stone-600 text-[10px] font-mono">
+                                    <FileText className="w-3 h-3" />
+                                    <span>Lyrics Attached</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 shrink-0 self-end md:self-center pt-2 md:pt-0">
+                            {onPreviewVideo && (
+                              <button
+                                onClick={() => onPreviewVideo(video)}
+                                className="p-2 rounded-lg text-stone-600 hover:text-[#C83C2E] hover:bg-[#C83C2E]/10 border border-[#E8DFD0] transition-colors cursor-pointer"
+                                title="Watch performance video"
+                              >
+                                <Play className="w-4 h-4" />
+                              </button>
+                            )}
+
+                            {video.youtubeId && (
+                              <a
+                                href={`https://www.youtube.com/watch?v=${video.youtubeId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg text-stone-600 hover:text-red-600 hover:bg-red-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                                title="Open on YouTube"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+
+                            <button
+                              onClick={() => handleEditVideo(video)}
+                              className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                              <span>Edit</span>
+                            </button>
+
+                            <button
+                              onClick={() => setDeleteConfirmId(video.id)}
+                              className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                              title="Delete video"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1419,12 +1560,11 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
         </div>
       )}
 
-      {/* ---------------- EDIT MODAL FOR VIDEO / SERVICE / ACHIEVEMENT ---------------- */}
-      {editingItem && (activeContentType === 'videos' || activeContentType === 'services' || activeContentType === 'achievements') && (
+      {/* ---------------- EDIT MODAL FOR SERVICE / ACHIEVEMENT ---------------- */}
+      {editingItem && (activeContentType === 'services' || activeContentType === 'achievements') && (
         <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <form 
             onSubmit={(e) => {
-              if (activeContentType === 'videos') handleSaveVideo(e);
               if (activeContentType === 'services') handleSaveService(e);
               if (activeContentType === 'achievements') handleSaveAchievement(e);
             }} 
@@ -1454,40 +1594,6 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-bold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                 />
               </div>
-
-              {activeContentType === 'videos' && (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block font-bold text-[#1A1A1A] mb-1">Event / Venue</label>
-                      <input
-                        type="text"
-                        value={editingItem.event}
-                        onChange={(e) => setEditingItem({ ...editingItem, event: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-bold text-[#1A1A1A] mb-1">YouTube Video ID</label>
-                      <input
-                        type="text"
-                        value={editingItem.youtubeId}
-                        onChange={(e) => setEditingItem({ ...editingItem, youtubeId: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-mono focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
-                    <textarea
-                      rows={3}
-                      value={editingItem.description}
-                      onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
-                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                    />
-                  </div>
-                </>
-              )}
 
               {activeContentType === 'services' && (
                 <>
@@ -1602,6 +1708,19 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* DEDICATED PERFORMANCE VIDEO EDITOR MODAL */}
+      <VideoEditorModal
+        video={editingVideo}
+        isOpen={videoModalOpen}
+        isNew={isVideoCreatingNew}
+        poems={poems}
+        onClose={() => {
+          setVideoModalOpen(false);
+          setEditingVideo(null);
+        }}
+        onSave={handleSaveVideo}
+      />
 
     </div>
   );

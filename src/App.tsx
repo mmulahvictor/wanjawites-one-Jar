@@ -60,6 +60,8 @@ export default function App() {
   const currentVideoId = videoIdMatch ? videoIdMatch[1] : null;
   const selectedVideo = currentVideoId ? (videos.find((v) => v.id === currentVideoId) || null) : null;
 
+  const [returnPath, setReturnPath] = useState<string | null>(null);
+
   const handleOpenBooking = (serviceId?: string) => {
     setPreselectedServiceId(serviceId);
     setBookingModalOpen(true);
@@ -74,11 +76,20 @@ export default function App() {
   };
 
   const handleOpenVideo = (video: VideoItem) => {
+    if (!location.pathname.startsWith('/videos')) {
+      setReturnPath(location.pathname);
+    }
     navigate(`/videos/${video.id}`);
   };
 
   const handleCloseVideo = () => {
-    navigate('/videos');
+    if (returnPath) {
+      const prev = returnPath;
+      setReturnPath(null);
+      navigate(prev);
+    } else {
+      navigate('/videos');
+    }
   };
 
   const handleOpenPoemBySlug = (slug: string) => {
