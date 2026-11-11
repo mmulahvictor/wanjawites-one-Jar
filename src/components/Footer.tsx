@@ -48,6 +48,16 @@ export const Footer: React.FC<FooterProps> = () => {
         <Link to="/services" className="hover:text-[#D81B7A] transition-colors">Services</Link>
         <Link to="/about" className="hover:text-[#D81B7A] transition-colors">About</Link>
         <Link to="/contact" className="hover:text-[#D81B7A] transition-colors">Contact</Link>
+        <a 
+          href="/assets/aistudio/EPK_One-Jar_Poetry_7867656c.pdf" 
+          download="Faith-Wanja-One-Jar-Poetry-EPK.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#D81B7A] font-semibold hover:underline"
+          title="Download Official One-Jar Poetry EPK"
+        >
+          EPK (PDF)
+        </a>
       </nav>
 
       {/* Social Links */}

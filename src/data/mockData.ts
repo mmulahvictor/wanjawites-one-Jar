@@ -735,6 +735,11 @@ export const SAMPLE_LETTERS: NewsletterLetter[] = [
 ];
 
 export const EPK_DATA = {
+  pdfUrl: '/assets/aistudio/EPK_One-Jar_Poetry_7867656c.pdf',
+  pdfFileName: 'Faith-Wanja-One-Jar-Poetry-EPK.pdf',
+  pdfFileSize: '2.7 MB',
+  pageCount: 5,
+  lastUpdated: '2026',
   shortBio: 'Faith Wanja (One-Jar Poetry) is a Kenyan poet, cultural documentarian, communications consultant, and filmmaker whose work centres on womanhood, generational healing, identity, and social justice. "My name is Wanja. I fill spaces with poems ONE JAR at a time."',
   mediumBio: 'Faith Wanja (One-Jar Poetry) is a Kenyan poet, cultural documentarian, communications consultant, and filmmaker. Immersed in the poetry scene, she features across open mics, competitive slams, and festivals including Rafinki, Nuetry, Mizani, Poets You Should Know (PYSK), Poetry Slam Africa Grand Slam, and Kitale Film Week 2026. Her poetry is marked by emotional honesty and a refusal to conceal discomfort.',
   fullBio: 'Faith Wanja (One-Jar Poetry) is a renowned Kenyan poet, cultural documentarian, communications consultant, and filmmaker with a background in Community Development. Operating under WanjaWrites and her signature performance brand One-Jar Poetry, Faith crafts deeply moving spoken word recitals that interrogate silence, inherited trauma, resilience, and freedom.\n\nHer work spans strategic communications for education and NGO initiatives (EduTab Africa, Watoto Watch Network), culture writing for Kenya’s literary scene, and co-authoring academic research in the ACM Digital Library. Selected features include Poetry Slam Africa Grand Slam, PYSK Women Slam, Mizani Slam, Kitale Film Week 2026 Opening Night, and the solo show “Are You Home?”.',

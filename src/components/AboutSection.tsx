@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Achievement } from '../types';
 import { EPK_DATA, ACHIEVEMENTS as DEFAULT_ACHIEVEMENTS } from '../data/mockData';
 import { getAchievements } from '../lib/cmsStore';
-import { Download, Check, ExternalLink, Printer } from 'lucide-react';
+import { Download, Check, ExternalLink, Printer, Eye, FileText } from 'lucide-react';
+import { EpkModal, EPK_FILE_PATH, EPK_FILE_NAME } from './EpkModal';
 
 interface AboutSectionProps {
   achievements?: Achievement[];
@@ -12,6 +13,7 @@ interface AboutSectionProps {
 export const AboutSection: React.FC<AboutSectionProps> = ({ achievements, onOpenBooking }) => {
   const [bioLength, setBioLength] = useState<'short' | 'medium' | 'full'>('medium');
   const [copiedBio, setCopiedBio] = useState(false);
+  const [isEpkModalOpen, setIsEpkModalOpen] = useState(false);
 
   const achievementList = (achievements || getAchievements() || DEFAULT_ACHIEVEMENTS).filter(
     (a) => (a.status || 'published') === 'published'
@@ -94,13 +96,23 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ achievements, onOpen
 
             <div className="pt-2 flex flex-wrap gap-3">
               <a
-                href="/docs/Faith-Wanja-One-Jar-Poetry-EPK.pdf"
-                download="Faith-Wanja-One-Jar-Poetry-EPK.pdf"
+                href={EPK_FILE_PATH}
+                download={EPK_FILE_NAME}
                 className="btn-wanja cursor-pointer inline-flex items-center gap-2"
+                title="Download Faith Wanja Official EPK PDF (2.7 MB)"
               >
                 <Download className="w-4 h-4" />
                 <span>Download Official EPK</span>
               </a>
+              <button
+                type="button"
+                onClick={() => setIsEpkModalOpen(true)}
+                className="btn-wanja-alt cursor-pointer inline-flex items-center gap-2"
+                title="Preview Electronic Press Kit in browser"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Preview EPK</span>
+              </button>
               <button
                 onClick={onOpenBooking}
                 className="btn-wanja-alt cursor-pointer"
@@ -118,7 +130,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ achievements, onOpen
       <section className="bg-[#3A1208] text-[#FFF6EC] px-6 sm:px-12 md:px-20 py-16 sm:py-20">
         <div className="max-w-7xl mx-auto space-y-10">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
               <span className="text-xs uppercase tracking-wider font-bold text-[#FFD9E6] bg-[#D81B7A] px-3 py-1 rounded-full inline-block mb-2">
                 Press & Presenters
@@ -128,14 +140,74 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ achievements, onOpen
               </h2>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={EPK_FILE_PATH}
+                download={EPK_FILE_NAME}
+                className="btn-wanja text-xs py-2 px-4 inline-flex items-center gap-1.5 cursor-pointer"
+                title="Download EPK PDF"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download PDF (2.7 MB)</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setIsEpkModalOpen(true)}
+                className="btn-wanja-alt bg-transparent text-white border border-white/30 hover:bg-[#D81B7A] text-xs py-2 px-4 inline-flex items-center gap-1.5 cursor-pointer"
+                title="Preview full EPK document"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Preview EPK</span>
+              </button>
               <button
                 onClick={() => window.print()}
-                className="btn-wanja-alt bg-transparent text-white border border-white/30 hover:bg-[#D81B7A] text-xs py-2 px-4 inline-flex items-center gap-1.5 cursor-pointer"
+                className="btn-wanja-alt bg-transparent text-white/80 border border-white/20 hover:bg-white/10 text-xs py-2 px-4 inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print EPK Sheet</span>
               </button>
+            </div>
+          </div>
+
+          {/* Dedicated EPK Document Attachment Showcase */}
+          <div className="bg-[#240a04] p-6 sm:p-8 rounded-2xl border-2 border-[#D81B7A]/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-[#D81B7A] flex items-center justify-center text-white shrink-0 shadow-lg">
+                <FileText className="w-7 h-7" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-[#FFD9E6] text-[#3A1208] px-2.5 py-0.5 rounded-full">
+                    Attached Document
+                  </span>
+                  <span className="text-xs text-[#FFD9E6]/75">PDF · 2.7 MB · 5 Pages · 2026 Edition</span>
+                </div>
+                <h3 className="font-serif text-2xl text-[#FFF6EC] font-normal">
+                  One-Jar Poetry — Official Electronic Press Kit
+                </h3>
+                <p className="text-xs sm:text-sm text-[#FFF6EC]/80 max-w-2xl font-sans leading-relaxed">
+                  Complete media and booking kit containing Faith Wanja's verified bio, curated performance timeline (Nuetry, Rafinki, Mizani, PYSK, Poetry Slam Africa, Kitale Film Week 2026), stage photo archives, technical rider requirements, and direct booking contacts.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex sm:flex-row flex-col gap-3 shrink-0 w-full md:w-auto">
+              <button
+                type="button"
+                onClick={() => setIsEpkModalOpen(true)}
+                className="btn-wanja text-xs py-2.5 px-5 inline-flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Open / Preview EPK</span>
+              </button>
+              <a
+                href={EPK_FILE_PATH}
+                download={EPK_FILE_NAME}
+                className="btn-wanja-alt bg-transparent text-[#FFF6EC] border border-[#FFD9E6]/40 hover:bg-[#D81B7A] text-xs py-2.5 px-5 inline-flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
+              >
+                <Download className="w-4 h-4" />
+                <span>Save PDF</span>
+              </a>
             </div>
           </div>
 
@@ -235,6 +307,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ achievements, onOpen
 
         </div>
       </section>
+
+      {/* EPK Modal Viewer */}
+      <EpkModal
+        isOpen={isEpkModalOpen}
+        onClose={() => setIsEpkModalOpen(false)}
+      />
 
     </div>
   );

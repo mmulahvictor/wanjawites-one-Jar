@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Poem, VideoItem } from '../types';
 import { GALLERY } from '../data/mockData';
-import { ChevronLeft, ChevronRight, X, ExternalLink, Download, Youtube } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, ExternalLink, Download, Youtube, Eye } from 'lucide-react';
+import { EpkModal, EPK_FILE_PATH, EPK_FILE_NAME } from './EpkModal';
 
 interface PoetrySectionProps {
   poems?: Poem[];
@@ -16,6 +17,9 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
   onOpenPoem,
   onOpenBooking
 }) => {
+  // EPK Modal state
+  const [isEpkModalOpen, setIsEpkModalOpen] = useState(false);
+
   // Lightbox state for gallery
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -83,13 +87,23 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
             {/* Action Row matching sample */}
             <div className="pt-2 flex flex-wrap gap-3">
               <a
-                href="/docs/Faith-Wanja-One-Jar-Poetry-EPK.pdf"
-                download="Faith-Wanja-One-Jar-Poetry-EPK.pdf"
+                href={EPK_FILE_PATH}
+                download={EPK_FILE_NAME}
                 className="btn-wanja cursor-pointer inline-flex items-center gap-2"
+                title="Download Official EPK (PDF)"
               >
                 <Download className="w-4 h-4" />
                 <span>Download EPK</span>
               </a>
+              <button
+                type="button"
+                onClick={() => setIsEpkModalOpen(true)}
+                className="btn-wanja-alt cursor-pointer inline-flex items-center gap-2"
+                title="Preview Electronic Press Kit"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Preview EPK</span>
+              </button>
               <a
                 href="https://www.youtube.com/@one_jar_poetry"
                 target="_blank"
@@ -392,6 +406,12 @@ export const PoetrySection: React.FC<PoetrySectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* EPK Modal */}
+      <EpkModal
+        isOpen={isEpkModalOpen}
+        onClose={() => setIsEpkModalOpen(false)}
+      />
 
     </div>
   );

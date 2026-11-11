@@ -281,6 +281,7 @@ export default function App() {
               />
             }
           />
+          <Route path="/epk" element={<Navigate to="/about" replace />} />
 
           {/* 5. Services / Work With Wanja Routes */}
           <Route
