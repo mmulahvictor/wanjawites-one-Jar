@@ -107,7 +107,34 @@ export interface SiteSettings {
   announcementActive?: boolean;
 }
 
-export type CmsContentType = 'poems' | 'articles' | 'videos' | 'services' | 'achievements' | 'settings' | 'team';
+export type CmsContentType = 'poems' | 'articles' | 'videos' | 'services' | 'achievements' | 'inquiries' | 'settings' | 'team';
+
+export type InquiryStatus = 'pending' | 'reviewed' | 'confirmed' | 'archived';
+
+export interface BookingInquiry {
+  id: string;
+  referenceCode: string;
+  type: 'booking' | 'contact';
+  status: InquiryStatus;
+  createdAt: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  organization?: string;
+  serviceType?: string;
+  inquiryType?: string;
+  subject?: string;
+  eventDate?: string;
+  location?: string;
+  budgetRange?: string;
+  message: string;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  subscribedAt: string;
+}
 
 export interface AccessibilitySettings {
   fontSize: 'normal' | 'large' | 'xlarge';

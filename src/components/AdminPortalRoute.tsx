@@ -131,26 +131,26 @@ export const AdminPortalRoute: React.FC<AdminPortalRouteProps> = ({
   // 1. GUEST VIEW: Access Restricted & Cryptographic Login Gate
   if (!admin) {
     return (
-      <div className="min-h-[85vh] bg-[#1A1A1A] py-12 px-4 sm:px-6 flex items-center justify-center animate-fadeIn">
-        <div className="w-full max-w-lg bg-[#222222] border border-[#333333] rounded-2xl shadow-2xl overflow-hidden">
+      <div className="min-h-[85vh] bg-[#3A1208] py-12 px-4 sm:px-6 flex items-center justify-center animate-fadeIn">
+        <div className="w-full max-w-lg bg-[#2B0C04] border border-[#FFD9E6]/25 rounded-2xl shadow-2xl overflow-hidden">
           
           {/* Header */}
-          <div className="p-8 text-center border-b border-[#333333] bg-gradient-to-b from-[#1E1E1E] to-[#222222]">
+          <div className="p-8 text-center border-b border-[#FFD9E6]/15 bg-gradient-to-b from-[#250903] to-[#2B0C04]">
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 rounded-2xl bg-[#C83C2E]/15 border border-[#C83C2E]/30 text-[#E88D4D] flex items-center justify-center shadow-inner">
-                <Lock className="w-7 h-7" />
+              <div className="w-14 h-14 rounded-2xl bg-[#D81B7A]/20 border border-[#D81B7A]/40 text-[#FFD9E6] flex items-center justify-center shadow-inner">
+                <Lock className="w-7 h-7 text-[#D81B7A]" />
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E88D4D]/15 border border-[#E88D4D]/40 text-[#E88D4D] text-[11px] font-bold uppercase tracking-wider mb-2">
-              <ShieldAlert className="w-3.5 h-3.5 text-[#E88D4D]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFD9E6] text-[#D81B7A] text-[11px] font-bold uppercase tracking-wider mb-2">
+              <ShieldAlert className="w-3.5 h-3.5 text-[#D81B7A]" />
               <span>Restricted System • Cryptographic Auth</span>
             </div>
 
-            <h1 className="text-2xl font-serif font-bold text-[#FFFBF5] tracking-wide">
+            <h1 className="text-2xl font-serif font-normal text-[#FFF6EC] tracking-wide">
               Administrative Portal
             </h1>
-            <p className="text-xs text-stone-400 mt-2 max-w-sm mx-auto leading-relaxed">
+            <p className="text-xs text-[#FFF6EC]/75 mt-2 max-w-sm mx-auto leading-relaxed">
               This area requires authenticated administrator credentials for Faith Wanja (One-Jar Poetry) and authorized team members.
             </p>
           </div>
@@ -241,7 +241,7 @@ export const AdminPortalRoute: React.FC<AdminPortalRouteProps> = ({
               <button
                 type="submit"
                 disabled={lockoutState.isLocked || isSubmitting}
-                className="w-full py-3 px-4 rounded-xl bg-[#C83C2E] hover:bg-[#B03225] disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-bold text-sm transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full btn-wanja text-sm py-3 px-4 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -250,7 +250,7 @@ export const AdminPortalRoute: React.FC<AdminPortalRouteProps> = ({
                   </>
                 ) : (
                   <>
-                    <KeyRound className="w-4 h-4 text-rose-200" />
+                    <KeyRound className="w-4 h-4 text-amber-200" />
                     <span>Verify Credentials & Enter Studio</span>
                   </>
                 )}

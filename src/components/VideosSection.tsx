@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { VideoItem } from '../types';
-import { VIDEOS as DEFAULT_VIDEOS } from '../data/mockData';
+import { VIDEOS as DEFAULT_VIDEOS, YOUTUBE_CHANNEL_URL, YOUTUBE_CHANNEL_HANDLE } from '../data/mockData';
 import { getVideos } from '../lib/cmsStore';
-import { 
-  YOUTUBE_CHANNEL_URL, 
-  YOUTUBE_CHANNEL_HANDLE, 
-  getYouTubeThumbnailUrl, 
-  getYouTubeWatchUrl, 
-  syncYouTubeChannelVideos 
-} from '../lib/youtubeChannelService';
-import { Play, Youtube, Clock, Filter, ExternalLink, RefreshCw, CheckCircle, Sparkles } from 'lucide-react';
+import { Play, Youtube, ExternalLink } from 'lucide-react';
 
 interface VideosSectionProps {
   videos?: VideoItem[];
@@ -17,14 +10,18 @@ interface VideosSectionProps {
   onOpenBooking: () => void;
 }
 
-export const VideosSection: React.FC<VideosSectionProps> = ({ videos, onOpenVideo, onOpenBooking }) => {
+export const VideosSection: React.FC<VideosSectionProps> = ({ 
+  videos, 
+  onOpenVideo, 
+  onOpenBooking 
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
-  const [syncStatus, setSyncStatus] = useState<string | null>(null);
 
-  const categories = ['All', 'spoken_word', 'keynote', 'reflection', 'reading'];
+  const categories = ['All', 'spoken_word', 'reading', 'keynote', 'reflection'];
 
-  const videoList = (videos || getVideos() || DEFAULT_VIDEOS).filter(v => (v.status || 'published') === 'published');
+  const videoList = (videos || getVideos() || DEFAULT_VIDEOS).filter(
+    (v) => (v.status || 'published') === 'published'
+  );
 
   const filteredVideos = videoList.filter((v) => {
     return selectedCategory === 'All' || v.category === selectedCategory;
@@ -35,208 +32,172 @@ export const VideosSection: React.FC<VideosSectionProps> = ({ videos, onOpenVide
       case 'spoken_word': return 'Spoken Word Live';
       case 'keynote': return 'Keynote & Panels';
       case 'reflection': return 'Studio Reflections';
-      case 'reading': return 'Outdoor Recitals';
-      default: return 'All Videos';
-    }
-  };
-
-  const handleSyncChannel = async () => {
-    setIsSyncing(true);
-    setSyncStatus(null);
-    try {
-      const result = await syncYouTubeChannelVideos();
-      setSyncStatus(result.message);
-      setTimeout(() => setSyncStatus(null), 5000);
-    } catch (err) {
-      setSyncStatus('Could not check for new videos at this time.');
-    } finally {
-      setIsSyncing(false);
+      case 'reading': return 'Recitals & Short Films';
+      default: return 'All Releases';
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-16">
+    <div className="w-full">
       
-      {/* YouTube Channel Header Banner */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-[#1A1A1A] text-white space-y-6 border border-[#2A2A2A] shadow-lg relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#C83C2E]/20 border border-[#C83C2E]/40 rounded-full text-xs font-bold text-[#FAF5ED]">
-              <Youtube className="w-4 h-4 text-[#C83C2E] fill-[#C83C2E]" />
-              <span>Official YouTube Channel ({YOUTUBE_CHANNEL_HANDLE})</span>
-            </div>
-            <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5] tracking-tight">
-              One Jar Poetry Videos
-            </h1>
-            <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed">
-              Explore spoken word recitals, keynotes, and memory excavation studio sessions from the official YouTube channel <strong className="text-white font-semibold">@one_jar_poetry</strong>.
-            </p>
+      {/* 1. Header Banner matching sample .pgh */}
+      <section className="bg-[#D81B7A] text-white px-6 sm:px-12 md:px-20 py-16 sm:py-20">
+        <div className="max-w-4xl space-y-4">
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl font-normal leading-[1.02] tracking-tight">
+            Film & Media
+          </h1>
+          <p className="text-base sm:text-lg text-white/90 max-w-2xl font-sans">
+            Short films, spoken word recitals, and visual documentation written and performed by Faith Wanja.
+          </p>
+        </div>
+      </section>
+
+      {/* 2. Job Hunt Short Film Spotlight matching sample .film */}
+      <section className="px-6 sm:px-12 md:px-20 py-16 bg-[#FFF6EC] text-[#3A1208] border-b border-[#FFD9E6]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-center">
+          
+          <div className="md:col-span-5 flex justify-center">
+            <img 
+              src="/images/film-job-hunt.jpg" 
+              alt="Poster for the short film Job Hunt, a quiet collapse, written by Faith Wanja and produced by The Four Frames" 
+              className="w-full max-w-md rounded-2xl shadow-md border-2 border-[#D81B7A]/20"
+            />
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <div className="md:col-span-7 space-y-4 text-left">
+            <span className="inline-block bg-[#FFD9E6] text-[#D81B7A] font-semibold text-xs px-3.5 py-1 rounded-full">
+              Short film
+            </span>
+            <h2 className="font-serif text-4xl sm:text-6xl md:text-7xl text-[#3A1208] font-normal leading-tight">
+              Job Hunt
+            </h2>
+            <p className="font-serif text-2xl sm:text-4xl text-[#D81B7A] font-normal">
+              Coming to your screens soon.
+            </p>
+            <p className="text-base sm:text-lg text-[#3A1208]/85 leading-relaxed font-sans pt-2">
+              Written by Faith Wanja and produced by The Four Frames. <em>Job Hunt</em> is an intimate, unflinching short film interrogating the quiet collapse of dignity, resilience, and hope experienced by young graduates searching for work in urban Kenya.
+            </p>
+            <div className="pt-2 flex flex-wrap gap-3">
+              <button
+                onClick={onOpenBooking}
+                className="btn-wanja cursor-pointer"
+              >
+                Inquire for Screenings & Film Labs
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. YouTube Archive & Spoken Word Recitals */}
+      <section className="px-6 sm:px-12 md:px-20 py-16 bg-[#FFF6EC] text-[#3A1208]">
+        <div className="max-w-7xl mx-auto space-y-8">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-3xl sm:text-5xl text-[#3A1208] font-normal">
+                YouTube Archive
+              </h2>
+              <p className="text-sm text-[#3A1208]/75 mt-1 font-sans">
+                Recitals, festival keynotes, and studio recordings from {YOUTUBE_CHANNEL_HANDLE}.
+              </p>
+            </div>
+
             <a
               href={YOUTUBE_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-3 rounded-xl bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-md transition-colors flex items-center gap-2"
+              className="btn-wanja text-xs py-2 px-5 inline-flex items-center gap-2 self-start sm:self-auto cursor-pointer"
             >
-              <Youtube className="w-4 h-4 fill-current" />
+              <Youtube className="w-4 h-4" />
               <span>Subscribe on YouTube</span>
-              <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+              <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </a>
-
-            <button
-              onClick={handleSyncChannel}
-              disabled={isSyncing}
-              className="px-4 py-3 rounded-xl bg-[#2A2A2A] hover:bg-[#333333] border border-[#333333] text-stone-200 text-xs font-semibold transition-colors flex items-center gap-2 disabled:opacity-60 cursor-pointer"
-              title="Check @one_jar_poetry channel for new video releases"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 text-[#E88D4D] ${isSyncing ? 'animate-spin' : ''}`} />
-              <span>{isSyncing ? 'Checking Channel...' : 'Sync New Videos'}</span>
-            </button>
           </div>
-        </div>
 
-        {/* Sync Status Banner */}
-        {syncStatus && (
-          <div className="p-3.5 rounded-xl bg-[#3A6EA5]/20 border border-[#3A6EA5]/40 text-[#FFFBF5] text-xs font-semibold flex items-center gap-2 animate-fade-in">
-            <CheckCircle className="w-4 h-4 text-[#E88D4D] shrink-0" />
-            <span>{syncStatus}</span>
+          {/* Filter Tabs */}
+          <div className="flex gap-2.5 flex-wrap">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  selectedCategory === cat
+                    ? 'bg-[#D81B7A] text-white'
+                    : 'bg-white text-[#3A1208] border border-[#FFD9E6] hover:border-[#D81B7A]'
+                }`}
+              >
+                {getCategoryLabel(cat)}
+              </button>
+            ))}
           </div>
-        )}
 
-        {/* Category Filters */}
-        <div className="pt-4 flex flex-wrap gap-2 text-xs font-semibold border-t border-[#333333]">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-[#C83C2E] text-white font-bold shadow-xs'
-                  : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
-              }`}
-            >
-              {getCategoryLabel(cat)}
-            </button>
-          ))}
-        </div>
-      </div>
+          {/* Video Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredVideos.map((video) => {
+              const thumb = video.thumbnailUrl || '/images/gal-8-bw-performance.jpg';
 
-      {/* Videos Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {filteredVideos.map((video) => {
-          const thumbnailUrl = video.thumbnailUrl || getYouTubeThumbnailUrl(video.youtubeId);
-          const watchUrl = getYouTubeWatchUrl(video.youtubeId);
-
-          return (
-            <div
-              key={video.id}
-              className="p-6 rounded-2xl bg-white border border-[#E8DFD0] hover:border-[#3A6EA5] shadow-sm hover:shadow-md transition-all space-y-4 group flex flex-col justify-between"
-            >
-              <div className="space-y-4">
-                {/* Video Thumbnail Container */}
+              return (
                 <div 
-                  onClick={() => onOpenVideo(video)}
-                  className="relative aspect-video rounded-xl overflow-hidden bg-black cursor-pointer"
+                  key={video.id}
+                  className="bg-white rounded-2xl p-5 border border-[#FFD9E6] shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
                 >
-                  <img
-                    src={thumbnailUrl}
-                    alt={video.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/wanja_navy_stage.jpg';
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 flex items-center justify-center transition-colors">
-                    <div className="w-14 h-14 rounded-full bg-[#C83C2E] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-                      <Play className="w-7 h-7 ml-1 fill-white" />
+                  <div>
+                    {/* Video thumbnail with play trigger */}
+                    <div 
+                      onClick={() => onOpenVideo(video)}
+                      className="relative rounded-xl overflow-hidden aspect-video bg-black cursor-pointer mb-4"
+                    >
+                      <img 
+                        src={thumb} 
+                        alt={video.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
+                      />
+                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-[#D81B7A] text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                          <Play className="w-5 h-5 fill-current ml-0.5" />
+                        </div>
+                      </div>
+                      <span className="absolute bottom-2 right-2 text-[10px] font-bold text-white bg-black/80 px-2 py-0.5 rounded-md">
+                        {video.duration}
+                      </span>
                     </div>
+
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#D81B7A] bg-[#FFD9E6] px-2.5 py-0.5 rounded-full inline-block mb-2">
+                      {video.event}
+                    </span>
+
+                    <h3 
+                      onClick={() => onOpenVideo(video)}
+                      className="font-serif text-xl sm:text-2xl text-[#3A1208] font-normal leading-snug cursor-pointer group-hover:text-[#D81B7A] transition-colors mb-2"
+                    >
+                      {video.title}
+                    </h3>
+
+                    <p className="text-xs text-[#3A1208]/75 line-clamp-2 leading-relaxed mb-4">
+                      {video.description}
+                    </p>
                   </div>
-                  <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/85 text-white text-[10px] rounded font-mono font-bold tracking-wider">
-                    {video.duration || '04:12'}
-                  </div>
-                  <div className="absolute top-3 left-3 px-2.5 py-1 bg-[#C83C2E] text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-sm">
-                    <Youtube className="w-3 h-3 fill-current" />
-                    <span>@one_jar_poetry</span>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-[#FFD9E6]">
+                    <span className="text-[11px] text-[#3A1208]/60 font-medium">
+                      {video.date}
+                    </span>
+                    <button
+                      onClick={() => onOpenVideo(video)}
+                      className="btn-wanja-alt text-xs py-1 px-3 cursor-pointer"
+                    >
+                      Play Video
+                    </button>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#3A6EA5]">
-                    <span>{video.event}</span>
-                    <span className="text-[#1A1A1A]/60 font-normal">{video.date}</span>
-                  </div>
-                  <h3 
-                    onClick={() => onOpenVideo(video)}
-                    className="font-serif text-2xl font-bold text-[#1A1A1A] hover:text-[#C83C2E] transition-colors cursor-pointer"
-                  >
-                    {video.title}
-                  </h3>
-                  <p className="text-xs text-[#1A1A1A]/70 leading-relaxed line-clamp-2">
-                    {video.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-4 border-t border-[#E8DFD0] flex items-center justify-between gap-3 text-xs font-semibold">
-                <button
-                  onClick={() => onOpenVideo(video)}
-                  className="px-3.5 py-2 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] transition-colors flex items-center gap-1.5 cursor-pointer"
-                >
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Play Preview</span>
-                </button>
-
-                <a
-                  href={watchUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-lg bg-[#FAF5ED] hover:bg-stone-200 border border-[#E8DFD0] text-[#1A1A1A] transition-colors flex items-center gap-1.5"
-                >
-                  <Youtube className="w-3.5 h-3.5 text-[#C83C2E] fill-current" />
-                  <span>Watch on YouTube</span>
-                  <ExternalLink className="w-3 h-3 opacity-70" />
-                </a>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Booking & Channel Subscription CTA */}
-      <div className="p-8 rounded-2xl bg-[#1A1A1A] text-white border border-[#2A2A2A] shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 text-xs text-[#E88D4D] font-bold">
-            <Youtube className="w-4 h-4 fill-current" />
-            <span>@one_jar_poetry on YouTube</span>
+              );
+            })}
           </div>
-          <h3 className="font-serif text-2xl font-bold text-[#FFFBF5]">
-            Invite Wanja to Perform Live at Your Event
-          </h3>
-          <p className="text-xs text-stone-300 max-w-xl">
-            Available for literary festivals, corporate keynotes, cultural galas, and virtual recitals worldwide.
-          </p>
+
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <a
-            href={YOUTUBE_CHANNEL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-3 rounded-lg bg-[#3A6EA5] text-white text-xs font-bold hover:bg-[#2E5A88] transition-colors flex items-center gap-2"
-          >
-            <Youtube className="w-4 h-4 fill-current" />
-            <span>Subscribe @one_jar_poetry</span>
-          </a>
-          <button
-            onClick={onOpenBooking}
-            className="px-5 py-3 rounded-lg bg-[#C83C2E] text-white text-xs font-semibold hover:bg-[#B03225] whitespace-nowrap shadow-xs transition-colors cursor-pointer"
-          >
-            Book Live Performance
-          </button>
-        </div>
-      </div>
+      </section>
 
     </div>
   );

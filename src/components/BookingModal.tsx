@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookingFormData, Service } from '../types';
-import { SERVICES } from '../data/mockData';
-import { X, Send, CheckCircle, Sparkles, Calendar, MapPin, DollarSign, Building } from 'lucide-react';
+import { SERVICES as DEFAULT_SERVICES } from '../data/mockData';
+import { getServices, saveInquiry } from '../lib/cmsStore';
+import { X, CheckCircle, Sparkles } from 'lucide-react';
 
 interface BookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   preselectedServiceId?: string;
+  services?: Service[];
 }
 
-export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, preselectedServiceId }) => {
+export const BookingModal: React.FC<BookingModalProps> = ({
+  isOpen,
+  onClose,
+  preselectedServiceId,
+  services,
+}) => {
+  const availableServices = (services || getServices() || DEFAULT_SERVICES).filter(
+    (s) => (s.status || 'published') === 'published'
+  );
+
   const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     email: '',
     phone: '',
     organization: '',
-    serviceType: preselectedServiceId || 's2',
+    serviceType: preselectedServiceId || availableServices[0]?.id || 's2',
     eventDate: '',
     location: '',
     budgetRange: 'Negotiable / Flexible',
@@ -25,240 +36,263 @@ export const BookingModal: React.FC<BookingModalProps> = ({ isOpen, onClose, pre
   const [submitted, setSubmitted] = useState(false);
   const [bookingRef, setBookingRef] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      setFormData((prev) => ({
+        ...prev,
+        serviceType: preselectedServiceId || prev.serviceType || availableServices[0]?.id || 's2',
+      }));
+    }
+  }, [isOpen, preselectedServiceId]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Esc') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const randomRef = `WW-BOOK-${Math.floor(100000 + Math.random() * 900000)}`;
     setBookingRef(randomRef);
+
+    const matchedService = availableServices.find((s) => s.id === formData.serviceType);
+
+    saveInquiry({
+      referenceCode: randomRef,
+      type: 'booking',
+      fullName: formData.fullName.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim() || undefined,
+      organization: formData.organization.trim() || undefined,
+      serviceType: matchedService ? matchedService.title : formData.serviceType,
+      eventDate: formData.eventDate || undefined,
+      location: formData.location.trim() || undefined,
+      budgetRange: formData.budgetRange,
+      message: formData.projectDescription.trim(),
+    });
+
     setSubmitted(true);
   };
 
   const handleReset = () => {
     setSubmitted(false);
+    setFormData({
+      fullName: '',
+      email: '',
+      phone: '',
+      organization: '',
+      serviceType: preselectedServiceId || availableServices[0]?.id || 's2',
+      eventDate: '',
+      location: '',
+      budgetRange: 'Negotiable / Flexible',
+      projectDescription: ''
+    });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn">
+    <div 
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-modal-title"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fadeIn cursor-pointer"
+    >
       <div 
-        className="bg-white w-full max-w-2xl rounded-2xl shadow-xl border border-[#E8DFD0] overflow-hidden my-8"
+        className="bg-[#FFF6EC] text-[#3A1208] w-full max-w-2xl rounded-2xl shadow-2xl border-2 border-[#D81B7A]/30 overflow-hidden my-8 cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-6 bg-[#1A1A1A] text-white flex items-center justify-between border-b border-[#2A2A2A]">
+        <div className="p-6 bg-[#3A1208] text-[#FFF6EC] flex items-center justify-between border-b border-[#FFD9E6]/15">
           <div>
-            <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[#E88D4D] font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-[#E88D4D]" />
-              <span>Professional Booking & Commission</span>
+            <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-[#D81B7A] bg-[#FFD9E6] px-2.5 py-0.5 rounded-full font-bold inline-block">
+              <span>Booking Proposal</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold mt-1 text-[#FFFBF5]">
-              Work With Wanja
+            <h2 id="booking-modal-title" className="font-serif text-2xl sm:text-3xl font-normal mt-2 text-[#FFF6EC]">
+              Book Faith Wanja
             </h2>
           </div>
+
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-stone-400 hover:text-white hover:bg-[#2A2A2A] transition-colors cursor-pointer"
+            className="p-2 rounded-full text-[#FFF6EC]/70 hover:bg-[#D81B7A] hover:text-white transition-colors cursor-pointer"
+            aria-label="Close modal"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
 
-        {submitted ? (
-          <div className="p-8 text-center space-y-6 bg-[#FAF5ED]">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle className="w-10 h-10" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-serif text-2xl font-bold text-[#1A1A1A]">
-                Booking Request Received!
+        {/* Form Body */}
+        <div className="p-6 sm:p-8">
+          {submitted ? (
+            <div className="py-8 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-[#FFD9E6] text-[#D81B7A] flex items-center justify-center mx-auto">
+                <CheckCircle className="w-10 h-10" />
+              </div>
+              <h3 className="font-serif text-3xl font-normal text-[#3A1208]">
+                Inquiry Received
               </h3>
-              <p className="text-sm text-[#1A1A1A]/70 max-w-md mx-auto">
-                Thank you, <strong className="text-[#1A1A1A]">{formData.fullName}</strong>. Wanja's team will review your project details and respond within 24–48 hours.
+              <p className="text-sm text-[#3A1208]/85 max-w-md mx-auto leading-relaxed">
+                Thank you for your proposal. Your reference code is <strong className="text-[#D81B7A] font-mono">{bookingRef}</strong>. Faith Wanja replies within five working days.
               </p>
-              <div className="inline-block p-3 rounded-xl bg-white border border-[#C83C2E]/30 text-xs font-mono text-[#C83C2E] mt-2 font-semibold">
-                Reference Code: {bookingRef}
+              <div className="pt-4 flex justify-center">
+                <button
+                  onClick={handleReset}
+                  className="btn-wanja cursor-pointer text-xs py-2 px-6"
+                >
+                  Done
+                </button>
               </div>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
 
-            <div className="pt-4 border-t border-[#E8DFD0] flex justify-center">
-              <button
-                onClick={handleReset}
-                className="px-6 py-2.5 rounded-lg bg-[#C83C2E] text-white font-semibold text-sm hover:bg-[#B03225] transition-colors shadow-xs cursor-pointer"
-              >
-                Return to Website
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5 bg-[#FAF5ED]">
-            <p className="text-xs text-[#1A1A1A]/60">
-              To help reduce back-and-forth, please provide as much context as possible about your event, campaign, or collaboration.
-            </p>
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
+              </div>
 
-            {/* Service Selection */}
-            <div>
-              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
-                Required Service / Offering *
-              </label>
-              <select
-                value={formData.serviceType}
-                onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                required
-              >
-                {SERVICES.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
-                <option value="general">General Enquiry / Media Interview</option>
-              </select>
-            </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Phone / WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
 
-            {/* Name & Email */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Organization / Festival
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.organization}
+                    onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1">
-                  Your Full Name *
+                <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                  Service / Engagement Type *
                 </label>
-                <input
-                  type="text"
+                <select
+                  value={formData.serviceType}
+                  onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                >
+                  {availableServices.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Proposed Event Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.eventDate}
+                    onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                    Location / Venue
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Nairobi, Kenya or Virtual"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                    className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#3A1208] mb-1">
+                  Event / Project Description *
+                </label>
+                <textarea
+                  rows={4}
                   required
-                  placeholder="e.g. Amani Mwangi"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  placeholder="Tell Faith about your event, audience, themes, or vision..."
+                  value={formData.projectDescription}
+                  onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl border-2 border-[#3A1208] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#D81B7A]"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  required
-                  placeholder="name@organization.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
+              <div className="pt-2 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="btn-wanja-alt text-xs py-2.5 px-5 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-wanja text-xs py-2.5 px-6 cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-200" />
+                  <span>Submit Proposal</span>
+                </button>
               </div>
-            </div>
-
-            {/* Phone & Organization */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1">
-                  Phone / WhatsApp
-                </label>
-                <input
-                  type="tel"
-                  placeholder="+254 700 000000"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1">
-                  Organization / Brand
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. National Festival / Brand Agency"
-                  value={formData.organization}
-                  onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
-              </div>
-            </div>
-
-            {/* Event Date & Location */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-[#C83C2E]" />
-                  <span>Proposed Date</span>
-                </label>
-                <input
-                  type="date"
-                  value={formData.eventDate}
-                  onChange={(e) => setFormData({ ...formData, eventDate: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5 text-[#3A6EA5]" />
-                  <span>Event Location / Venue</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Nairobi / Virtual / Overseas"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
-              </div>
-            </div>
-
-            {/* Budget Range (Optional) */}
-            <div>
-              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1 flex items-center gap-1">
-                <DollarSign className="w-3.5 h-3.5 text-[#E88D4D]" />
-                <span>Estimated Budget (Optional)</span>
-              </label>
-              <select
-                value={formData.budgetRange}
-                onChange={(e) => setFormData({ ...formData, budgetRange: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-              >
-                <option value="Negotiable / Flexible">Negotiable / Flexible</option>
-                <option value="Under $1,000 / KES 100k">Under $1,000 / KES 100k (Community/Non-Profit)</option>
-                <option value="$1,000 - $3,000 / KES 100k-300k">$1,000 - $3,000 (Standard Performance/Workshop)</option>
-                <option value="$3,000 - $7,500 / KES 300k-750k">$3,000 - $7,500 (Branded Commission/Major Festival)</option>
-                <option value="$7,500+ / KES 750k+">$7,500+ (Comprehensive Brand Campaign)</option>
-              </select>
-            </div>
-
-            {/* Project Description */}
-            <div>
-              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-1">
-                Project Details / Request Description *
-              </label>
-              <textarea
-                required
-                rows={4}
-                placeholder="Describe the event theme, target audience size, expected deliverables, or specific poetic themes you wish to explore..."
-                value={formData.projectDescription}
-                onChange={(e) => setFormData({ ...formData, projectDescription: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-white border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#E8DFD0]">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-2.5 rounded-lg border border-[#E8DFD0] text-xs font-semibold text-[#1A1A1A]/70 hover:bg-stone-200 transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-lg bg-[#C83C2E] text-white text-xs font-semibold hover:bg-[#B03225] transition-colors shadow-xs flex items-center gap-2 cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-                <span>Submit Booking Enquiry</span>
-              </button>
-            </div>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );

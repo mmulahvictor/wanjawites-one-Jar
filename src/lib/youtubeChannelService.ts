@@ -82,16 +82,22 @@ export async function syncYouTubeChannelVideos(): Promise<{
     console.warn('Channel fetch fallback engaged:', err);
   }
 
-  // Fallback / sync reset to ensure channel default videos are populated in store
+  // Fallback: only seed default videos if the store is currently empty, never overwrite existing edits
   const currentVideos = getVideos();
-  DEFAULT_VIDEOS.forEach(dv => {
-    saveVideo(dv);
-  });
+  let newlySeeded = 0;
+  if (currentVideos.length === 0) {
+    DEFAULT_VIDEOS.forEach(dv => {
+      saveVideo(dv);
+      newlySeeded++;
+    });
+  }
   const finalVideos = getVideos();
 
   return {
     success: true,
-    message: 'Channel @one_jar_poetry videos synced successfully!',
+    message: newlySeeded > 0
+      ? `Seeded ${newlySeeded} default performance video(s) from @one_jar_poetry.`
+      : 'Channel @one_jar_poetry catalog is up to date — your custom video edits are preserved.',
     videos: finalVideos,
   };
 }

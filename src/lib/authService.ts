@@ -410,6 +410,29 @@ export function getCurrentAdmin(): AdminUser | null {
       logoutAdmin();
       return null;
     }
+
+    // Cross-check with live user registry so suspended/deleted users or updated privileges sync immediately
+    const storedUsers = getStoredAdminUsers();
+    if (storedUsers.length > 0) {
+      const liveRecord = storedUsers.find(u => u.id === session.id);
+      if (!liveRecord || !liveRecord.isActive) {
+        sessionStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem('wanja_admin_authenticated');
+        localStorage.removeItem(REMEMBER_KEY);
+        return null;
+      }
+      const syncedSession: AdminUser = {
+        ...session,
+        username: liveRecord.username,
+        email: liveRecord.email,
+        displayName: liveRecord.displayName,
+        role: liveRecord.role,
+        roleLabel: liveRecord.roleLabel,
+        privileges: { ...liveRecord.privileges },
+      };
+      return syncedSession;
+    }
+
     return session;
   } catch (err) {
     console.warn('Error reading admin session:', err);

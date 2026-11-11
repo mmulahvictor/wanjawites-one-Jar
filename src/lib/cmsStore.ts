@@ -1,24 +1,68 @@
-import { Poem, Article, VideoItem, Service, Achievement, SiteSettings, AccessibilitySettings } from '../types';
+import { 
+  Poem, 
+  Article, 
+  VideoItem, 
+  Service, 
+  Achievement, 
+  SiteSettings, 
+  AccessibilitySettings,
+  BookingInquiry,
+  InquiryStatus,
+  NewsletterSubscriber
+} from '../types';
 import { POEMS, ARTICLES, VIDEOS, SERVICES, ACHIEVEMENTS } from '../data/mockData';
 
 const STORAGE_KEYS = {
-  POEMS: 'wanja_cms_poems_v1',
-  ARTICLES: 'wanja_cms_articles_v1',
-  VIDEOS: 'wanja_cms_videos_v1',
-  SERVICES: 'wanja_cms_services_v1',
-  ACHIEVEMENTS: 'wanja_cms_achievements_v1',
-  SETTINGS: 'wanja_cms_settings_v1',
+  POEMS: 'wanja_cms_poems_v2',
+  ARTICLES: 'wanja_cms_articles_v2',
+  VIDEOS: 'wanja_cms_videos_v2',
+  SERVICES: 'wanja_cms_services_v2',
+  ACHIEVEMENTS: 'wanja_cms_achievements_v2',
+  INQUIRIES: 'wanja_cms_inquiries_v2',
+  SUBSCRIBERS: 'wanja_cms_subscribers_v2',
+  SETTINGS: 'wanja_cms_settings_v2',
   ACCESSIBILITY: 'wanja_a11y_settings_v1',
 };
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
-  siteName: 'WanjaWrites × One-Jar',
-  siteTagline: 'Poet · Writer · Storyteller',
-  heroHeadline: 'Spoken Word, Poetic Excavation & Oral Archives',
-  heroSubhead: 'Unsealing emotional containers, written stanzas, and stage performances by Wanja.',
-  announcementBanner: '✨ Book Wanja for 2025 Literary Festivals, Corporate Keynotes & Workshops',
-  announcementActive: true,
+  siteName: 'Wanja Writes',
+  siteTagline: 'Poet · Writer · Communications Consultant · Filmmaker',
+  heroHeadline: 'Wanja Writes',
+  heroSubhead: 'Wanja Writes is the creative practice of a Kenyan poet, culture writer, communications consultant, and filmmaker. Working across words, images, and lived experiences, Wanja explores identity, memory, belonging, and the stories that shape us. Her work bridges artistic expression and cultural documentation, preserving voices and experiences that deserve to be remembered.',
+  announcementBanner: '✨ "Are You Home?" Solo show recap live · Short film "Job Hunt" coming soon',
+  announcementActive: false,
 };
+
+export const DEFAULT_INQUIRIES: BookingInquiry[] = [
+  {
+    id: 'inq_seed_1',
+    referenceCode: 'WW-BOOK-842910',
+    type: 'booking',
+    status: 'confirmed',
+    createdAt: '2026-09-15T10:30:00.000Z',
+    fullName: 'Dr. Njeri Kamau',
+    email: 'n.kamau@eastafricanlitfest.org',
+    phone: '+254 722 109482',
+    organization: 'East African Literary & Cultural Festival',
+    serviceType: 's2',
+    eventDate: '2026-11-14',
+    location: 'Kenya National Theatre, Nairobi',
+    budgetRange: '$1,000 - $3,000 / KES 100k-300k',
+    message: 'We would love to invite Faith Wanja (One-Jar Poetry) to deliver the 30-minute opening night keynote recital on intergenerational memory and oral archives.'
+  },
+  {
+    id: 'inq_seed_2',
+    referenceCode: 'WW-MSG-519204',
+    type: 'contact',
+    status: 'pending',
+    createdAt: '2026-09-28T14:15:00.000Z',
+    fullName: 'David Ochieng',
+    email: 'dochieng@barazamedia.ke',
+    inquiryType: 'Media / Interview Request',
+    subject: 'Feature Profile on One-Jar Poetry & Kitale Film Week',
+    message: 'Hello Faith, we are preparing a cultural dispatch profiling contemporary Kenyan spoken-word documentarians and would love to schedule a 20-minute interview.'
+  }
+];
 
 export const DEFAULT_A11Y_SETTINGS: AccessibilitySettings = {
   fontSize: 'normal',
@@ -220,6 +264,86 @@ export function deleteAchievement(id: string): Achievement[] {
   return updated;
 }
 
+// ---------------- BOOKINGS & INQUIRIES ----------------
+export function getInquiries(): BookingInquiry[] {
+  return getItem<BookingInquiry[]>(STORAGE_KEYS.INQUIRIES, DEFAULT_INQUIRIES);
+}
+
+export function saveInquiry(
+  inquiry: Omit<BookingInquiry, 'id' | 'createdAt' | 'status'> & { id?: string; createdAt?: string; status?: InquiryStatus }
+): BookingInquiry {
+  const existing = getInquiries();
+  const newRecord: BookingInquiry = {
+    ...inquiry,
+    id: inquiry.id || `inq_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    createdAt: inquiry.createdAt || new Date().toISOString(),
+    status: inquiry.status || 'pending',
+  };
+  const index = existing.findIndex(i => i.id === newRecord.id);
+  let updated: BookingInquiry[];
+  if (index >= 0) {
+    updated = [...existing];
+    updated[index] = newRecord;
+  } else {
+    updated = [newRecord, ...existing];
+  }
+  setItem(STORAGE_KEYS.INQUIRIES, updated);
+  notifyCmsUpdate();
+  return newRecord;
+}
+
+export function updateInquiryStatus(id: string, status: InquiryStatus): BookingInquiry[] {
+  const existing = getInquiries();
+  const updated = existing.map(i => (i.id === id ? { ...i, status } : i));
+  setItem(STORAGE_KEYS.INQUIRIES, updated);
+  notifyCmsUpdate();
+  return updated;
+}
+
+export function deleteInquiry(id: string): BookingInquiry[] {
+  const existing = getInquiries();
+  const updated = existing.filter(i => i.id !== id);
+  setItem(STORAGE_KEYS.INQUIRIES, updated);
+  notifyCmsUpdate();
+  return updated;
+}
+
+// ---------------- NEWSLETTER SUBSCRIBERS ----------------
+export function getSubscribers(): NewsletterSubscriber[] {
+  return getItem<NewsletterSubscriber[]>(STORAGE_KEYS.SUBSCRIBERS, [
+    { id: 'sub_1', email: 'curator@nairobigallery.org', subscribedAt: '2026-08-19T09:00:00.000Z' },
+    { id: 'sub_2', email: 'poetry@kitalefilmweek.com', subscribedAt: '2026-09-04T16:20:00.000Z' },
+  ]);
+}
+
+export function addSubscriber(email: string): NewsletterSubscriber[] {
+  const clean = email.trim().toLowerCase();
+  if (!clean) return getSubscribers();
+  const existing = getSubscribers();
+  if (existing.some(s => s.email.toLowerCase() === clean)) {
+    return existing;
+  }
+  const updated: NewsletterSubscriber[] = [
+    {
+      id: `sub_${Date.now()}`,
+      email: clean,
+      subscribedAt: new Date().toISOString(),
+    },
+    ...existing,
+  ];
+  setItem(STORAGE_KEYS.SUBSCRIBERS, updated);
+  notifyCmsUpdate();
+  return updated;
+}
+
+export function deleteSubscriber(id: string): NewsletterSubscriber[] {
+  const existing = getSubscribers();
+  const updated = existing.filter(s => s.id !== id);
+  setItem(STORAGE_KEYS.SUBSCRIBERS, updated);
+  notifyCmsUpdate();
+  return updated;
+}
+
 // ---------------- SITE SETTINGS ----------------
 export function getSiteSettings(): SiteSettings {
   return getItem<SiteSettings>(STORAGE_KEYS.SETTINGS, DEFAULT_SITE_SETTINGS);
@@ -250,9 +374,11 @@ export function exportCmsData() {
     videos: getVideos(),
     services: getServices(),
     achievements: getAchievements(),
+    inquiries: getInquiries(),
+    subscribers: getSubscribers(),
     settings: getSiteSettings(),
     exportedAt: new Date().toISOString(),
-    version: '1.0',
+    version: '1.1',
   };
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
@@ -271,6 +397,8 @@ export function importCmsData(jsonData: any): boolean {
     if (jsonData.videos) setItem(STORAGE_KEYS.VIDEOS, jsonData.videos);
     if (jsonData.services) setItem(STORAGE_KEYS.SERVICES, jsonData.services);
     if (jsonData.achievements) setItem(STORAGE_KEYS.ACHIEVEMENTS, jsonData.achievements);
+    if (jsonData.inquiries) setItem(STORAGE_KEYS.INQUIRIES, jsonData.inquiries);
+    if (jsonData.subscribers) setItem(STORAGE_KEYS.SUBSCRIBERS, jsonData.subscribers);
     if (jsonData.settings) setItem(STORAGE_KEYS.SETTINGS, jsonData.settings);
     notifyCmsUpdate();
     return true;
@@ -287,6 +415,8 @@ export function resetCmsData(): void {
   localStorage.removeItem(STORAGE_KEYS.VIDEOS);
   localStorage.removeItem(STORAGE_KEYS.SERVICES);
   localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
+  localStorage.removeItem(STORAGE_KEYS.INQUIRIES);
+  localStorage.removeItem(STORAGE_KEYS.SUBSCRIBERS);
   localStorage.removeItem(STORAGE_KEYS.SETTINGS);
   
   // Re-seed
@@ -295,6 +425,7 @@ export function resetCmsData(): void {
   setItem(STORAGE_KEYS.VIDEOS, VIDEOS);
   setItem(STORAGE_KEYS.SERVICES, SERVICES);
   setItem(STORAGE_KEYS.ACHIEVEMENTS, ACHIEVEMENTS);
+  setItem(STORAGE_KEYS.INQUIRIES, DEFAULT_INQUIRIES);
   setItem(STORAGE_KEYS.SETTINGS, DEFAULT_SITE_SETTINGS);
   
   notifyCmsUpdate();

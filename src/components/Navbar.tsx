@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, Sparkles, Lock, ShieldCheck, LogOut } from 'lucide-react';
-import { OneJarLogo } from './OneJarLogo';
 import { getCurrentAdmin, logoutAdmin, AUTH_CHANGE_EVENT, AdminUser } from '../lib/authService';
 
 interface NavbarProps {
@@ -29,24 +28,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
     return () => window.removeEventListener(AUTH_CHANGE_EVENT, handleAuth);
   }, []);
 
-  // Standard public navigation items for all visitors and guests
   const publicNavItems: NavItem[] = [
     { path: '/', label: 'Home' },
-    { path: '/poetry', label: 'Poetry', badge: 'One-Jar' },
-    { path: '/writing', label: 'Writing' },
-    { path: '/about', label: 'About' },
+    { path: '/poetry', label: 'One-Jar' },
+    { path: '/writing', label: 'Journal' },
+    { path: '/videos', label: 'Film' },
     { path: '/services', label: 'Services' },
-    { path: '/videos', label: 'Videos' },
+    { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
   ];
 
-  // ONLY include the admin portal in navItems if the user is an authenticated administrator
   const navItems: NavItem[] = adminUser
     ? [
         ...publicNavItems,
         {
           path: '/admin',
-          label: 'Admin Studio',
+          label: 'Admin',
           badge: adminUser.role === 'super_admin' ? 'Super Admin' : 'Editor',
           isRestricted: true,
         },
@@ -67,21 +64,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-[#FFFBF5]/95 backdrop-blur-md border-b border-[#E8DFD0] transition-all shadow-xs" role="banner">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header 
+      className="sticky top-0 z-40 bg-[#FFF6EC] text-[#3A1208] border-b-[3px] border-[#D81B7A] transition-all print:hidden"
+      role="banner"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 flex-wrap">
         
-        {/* Brand Identifiers with Official One-Jar Poetry Logo */}
+        {/* Brand Logo matching sample .logo: font: 1.6rem var(--serif); color: var(--fu); */}
         <Link 
           id="nav-brand-logo"
           to="/"
-          className="flex items-center gap-2 group text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C83C2E] rounded-lg p-1"
-          aria-label="Faith Wanja One-Jar Poetry Home"
+          className="font-serif text-[1.65rem] tracking-normal text-[#D81B7A] hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D81B7A]"
+          aria-label="Wanja Writes Home"
         >
-          <OneJarLogo size="sm" showText={true} />
+          Wanja Writes
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden xl:flex items-center space-x-1" role="navigation" aria-label="Main Desktop Navigation">
+        {/* Desktop Navigation matching sample nav links with bottom border indicator */}
+        <nav className="hidden lg:flex items-center space-x-6" role="navigation" aria-label="Main Navigation">
           {navItems.map((item) => {
             const active = isActive(item.path);
             return (
@@ -90,18 +90,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
                 id={`nav-item-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                 to={item.path}
                 aria-current={active ? 'page' : undefined}
-                className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3A6EA5] focus-visible:ring-offset-1 ${
+                className={`py-1 text-sm font-medium transition-all border-b-[3px] ${
                   active
-                    ? 'bg-[#3A6EA5]/10 text-[#3A6EA5] font-bold border border-[#3A6EA5]/25'
-                    : 'text-[#1A1A1A]/75 hover:text-[#C83C2E] hover:bg-[#FAF5ED]'
+                    ? 'border-[#D81B7A] text-[#D81B7A] font-semibold'
+                    : 'border-transparent text-[#3A1208] hover:border-[#D81B7A] hover:text-[#D81B7A]'
                 }`}
               >
                 <span>{item.label}</span>
                 {item.badge && (
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold flex items-center gap-1 ${
+                  <span className={`ml-1.5 text-[10px] px-1.5 py-0.5 rounded-full font-bold inline-flex items-center gap-1 ${
                     item.isRestricted
-                      ? 'bg-[#E88D4D]/20 text-[#C83C2E] border border-[#E88D4D]/40'
-                      : 'bg-[#C83C2E] text-white'
+                      ? 'bg-[#FFD9E6] text-[#D81B7A]'
+                      : 'bg-[#D81B7A] text-white'
                   }`}>
                     {item.isRestricted && <Lock className="w-2.5 h-2.5 shrink-0" />}
                     <span>{item.badge}</span>
@@ -112,16 +112,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           })}
         </nav>
 
-        {/* Right Actions: Authenticated admin quick badge or standard booking button */}
-        <div className="hidden xl:flex items-center space-x-3">
+        {/* Right Action: Pill button matching sample .btn */}
+        <div className="hidden lg:flex items-center space-x-3">
           {adminUser && (
-            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-[#E88D4D]/15 border border-[#E88D4D]/35 text-[#1A1A1A] text-xs">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C83C2E]" />
-              <span className="font-semibold">{adminUser.displayName}</span>
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[#FFD9E6] text-[#3A1208] text-xs font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#D81B7A]" />
+              <span>{adminUser.displayName}</span>
               <button
                 onClick={handleLogout}
                 title="Sign out of Administrator Session"
-                className="ml-1 text-stone-500 hover:text-[#C83C2E] p-0.5 rounded cursor-pointer"
+                className="ml-1 text-[#3A1208]/60 hover:text-[#D81B7A] p-0.5 cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
               </button>
@@ -131,21 +131,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           <button
             id="nav-book-btn"
             onClick={onOpenBooking}
-            className="px-4 py-2 text-xs font-bold rounded-lg bg-[#C83C2E] text-white hover:bg-[#B03225] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C83C2E] focus-visible:ring-offset-2 transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+            className="btn-wanja text-sm py-2 px-5 cursor-pointer flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-            <span>Book / Collaborate</span>
+            <span>Say Hello</span>
           </button>
         </div>
 
-        {/* Mobile / Tablet Menu Toggle Button */}
-        <div className="flex xl:hidden items-center gap-2">
+        {/* Mobile / Tablet Menu Toggle */}
+        <div className="flex lg:hidden items-center gap-2">
           {adminUser && (
             <Link
               to="/admin"
-              className="p-1.5 rounded-lg bg-[#E88D4D]/20 text-[#C83C2E] text-[11px] font-bold flex items-center gap-1"
+              className="px-2.5 py-1 rounded-full bg-[#FFD9E6] text-[#D81B7A] text-xs font-semibold flex items-center gap-1"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C83C2E]" />
+              <ShieldCheck className="w-3 h-3 text-[#D81B7A]" />
               <span>Admin</span>
             </Link>
           )}
@@ -153,15 +153,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           <button
             id="mobile-book-btn"
             onClick={onOpenBooking}
-            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[#C83C2E] text-white cursor-pointer"
+            className="btn-wanja text-xs py-1.5 px-3.5 cursor-pointer"
           >
-            Book
+            Say Hello
           </button>
 
           <button
             id="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-lg text-[#1A1A1A] hover:bg-[#FAF5ED] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C83C2E] cursor-pointer"
+            className="p-2 rounded-lg text-[#3A1208] hover:bg-[#FFD9E6]/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D81B7A] cursor-pointer"
             aria-label="Toggle Navigation Menu"
             aria-expanded={mobileMenuOpen}
           >
@@ -172,7 +172,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#FFFBF5] border-b border-[#E8DFD0] px-4 pt-2 pb-6 space-y-2 shadow-lg animate-fadeIn" role="navigation" aria-label="Mobile Navigation Drawer">
+        <div className="lg:hidden bg-[#FFF6EC] border-t border-[#FFD9E6] px-4 pt-2 pb-6 space-y-1 shadow-lg animate-fadeIn">
           {navItems.map((item) => {
             const active = isActive(item.path);
             return (
@@ -182,18 +182,18 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
                 aria-current={active ? 'page' : undefined}
-                className={`w-full text-left px-4 py-3 rounded-lg text-sm font-semibold flex items-center justify-between transition-colors ${
+                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between transition-colors ${
                   active
-                    ? 'bg-[#3A6EA5]/10 text-[#3A6EA5] font-bold border border-[#3A6EA5]/25'
-                    : 'text-[#1A1A1A] hover:bg-[#FAF5ED]'
+                    ? 'bg-[#D81B7A] text-white font-semibold'
+                    : 'text-[#3A1208] hover:bg-[#FFD9E6]/40'
                 }`}
               >
                 <span>{item.label}</span>
                 {item.badge && (
                   <span className={`text-xs px-2 py-0.5 rounded-full font-bold flex items-center gap-1 ${
-                    item.isRestricted 
-                      ? 'bg-[#E88D4D]/20 text-[#C83C2E] border border-[#E88D4D]/40' 
-                      : 'bg-[#C83C2E] text-white'
+                    active 
+                      ? 'bg-white text-[#D81B7A]' 
+                      : 'bg-[#FFD9E6] text-[#D81B7A]'
                   }`}>
                     {item.isRestricted && <Lock className="w-3 h-3 shrink-0" />}
                     <span>{item.badge}</span>
@@ -209,26 +209,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
                 setMobileMenuOpen(false);
                 handleLogout();
               }}
-              className="w-full text-left px-4 py-2.5 rounded-lg text-xs font-semibold text-[#C83C2E] hover:bg-[#C83C2E]/10 flex items-center gap-2 cursor-pointer"
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold text-[#D81B7A] hover:bg-[#FFD9E6]/40 flex items-center gap-2 cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out ({adminUser.displayName})</span>
             </button>
           )}
-
-          <div className="pt-2">
-            <button
-              id="mobile-menu-booking-btn"
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenBooking();
-              }}
-              className="w-full py-3 rounded-lg bg-[#C83C2E] text-white font-semibold text-center flex items-center justify-center gap-2 shadow-xs cursor-pointer hover:bg-[#B03225]"
-            >
-              <Sparkles className="w-4 h-4 text-amber-200" />
-              <span>Book Wanja for Event / Campaign</span>
-            </button>
-          </div>
         </div>
       )}
     </header>

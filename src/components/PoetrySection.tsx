@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Poem, VideoItem, GalleryItem } from '../types';
-import { POEMS as DEFAULT_POEMS, VIDEOS as DEFAULT_VIDEOS, GALLERY } from '../data/mockData';
-import { getPoems, getVideos } from '../lib/cmsStore';
-import { Search, Filter, BookOpen, Play, Volume2, Image as ImageIcon, Sparkles, Tag, ArrowRight } from 'lucide-react';
+import { Poem, VideoItem } from '../types';
+import { GALLERY } from '../data/mockData';
+import { ChevronLeft, ChevronRight, X, ExternalLink, Download, Youtube } from 'lucide-react';
 
 interface PoetrySectionProps {
   poems?: Poem[];
@@ -13,285 +12,386 @@ interface PoetrySectionProps {
 }
 
 export const PoetrySection: React.FC<PoetrySectionProps> = ({
-  poems,
-  videos,
+  poems = [],
   onOpenPoem,
-  onOpenVideo,
   onOpenBooking
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'all-poems' | 'performances' | 'gallery'>('all-poems');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string>('All');
-  const [selectedGalleryCategory, setSelectedGalleryCategory] = useState<string>('All');
+  // Lightbox state for gallery
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  // Use dynamic poems from props or store, filtered for published status
-  const poemList = poems || getPoems() || DEFAULT_POEMS;
-  const publishedPoems = poemList.filter((p) => (p.status || 'published') === 'published');
+  // Active accordion poem indices
+  const [expandedPoemId, setExpandedPoemId] = useState<string | null>(null);
 
-  const videoList = videos || getVideos() || DEFAULT_VIDEOS;
-  const publishedVideos = videoList.filter((v) => (v.status || 'published') === 'published');
+  const togglePoem = (id: string) => {
+    setExpandedPoemId(expandedPoemId === id ? null : id);
+  };
 
-  const allTags = ['All', ...Array.from(new Set(publishedPoems.flatMap((p) => p.tags)))];
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
-  const filteredPoems = publishedPoems.filter((p) => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.stanzas.some((s) => s.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                          (p.context && p.context.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesTag = selectedTag === 'All' || p.tags.includes(selectedTag);
-    return matchesSearch && matchesTag;
-  });
+  const nextLightbox = () => {
+    setLightboxIndex((prev) => (prev + 1) % GALLERY.length);
+  };
 
-  const filteredGallery = GALLERY.filter((g) => {
-    return selectedGalleryCategory === 'All' || g.category === selectedGalleryCategory;
-  });
+  const prevLightbox = () => {
+    setLightboxIndex((prev) => (prev + GALLERY.length - 1) % GALLERY.length);
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-16">
+    <div className="w-full">
       
-      {/* Header Banner */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-[#1A1A1A] text-white space-y-4 border border-[#2A2A2A] shadow-sm">
-        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E88D4D]">
-          <BookOpen className="w-4 h-4" />
-          <span>One-Jar Poetry Archive</span>
+      {/* 1. Header Banner matching sample .pgh */}
+      <section className="bg-[#D81B7A] text-white px-6 sm:px-12 md:px-20 py-16 sm:py-20">
+        <div className="max-w-4xl space-y-4">
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl font-normal leading-[1.02] tracking-tight">
+            One-Jar Poetry
+          </h1>
+          <p className="text-base sm:text-lg text-white/90 max-w-2xl font-sans">
+            Spoken word and written poems on womanhood, grief, love, and healing.
+          </p>
         </div>
-        <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5]">
-          The Poetry & Performance Identity
-        </h1>
-        <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed">
-          "What Wanja's poetry sounds, feels, and looks like." An archive of unsealed written stanzas, spoken-word videos, and live performance documentation.
-        </p>
+      </section>
 
-        {/* Sub-navigation tabs */}
-        <div className="pt-4 flex flex-wrap gap-2 text-xs font-semibold">
-          <button
-            onClick={() => setActiveSubTab('all-poems')}
-            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
-              activeSubTab === 'all-poems'
-                ? 'bg-[#C83C2E] text-white font-bold'
-                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
-            }`}
-          >
-            Poems Collection ({publishedPoems.length})
-          </button>
-          <button
-            onClick={() => setActiveSubTab('performances')}
-            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
-              activeSubTab === 'performances'
-                ? 'bg-[#C83C2E] text-white font-bold'
-                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
-            }`}
-          >
-            Spoken-Word Performances ({publishedVideos.length})
-          </button>
-          <button
-            onClick={() => setActiveSubTab('gallery')}
-            className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
-              activeSubTab === 'gallery'
-                ? 'bg-[#C83C2E] text-white font-bold'
-                : 'bg-[#2A2A2A] text-stone-300 hover:bg-[#333333]'
-            }`}
-          >
-            Performance Gallery ({GALLERY.length})
-          </button>
-        </div>
-      </div>
-
-      {/* SUB-TAB 1: ALL POEMS */}
-      {activeSubTab === 'all-poems' && (
-        <div className="space-y-8">
+      {/* 2. Biography Split Section matching sample .two with arched portrait */}
+      <section className="px-6 sm:px-12 md:px-20 py-16 bg-[#FFF6EC] text-[#3A1208]">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 items-start">
           
-          {/* Controls: Search & Tags */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-xl bg-white border border-[#E8DFD0] shadow-xs">
-            
-            {/* Search Input */}
-            <div className="relative w-full md:w-80">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
-              <input
-                type="text"
-                placeholder="Search poems by title or keyword..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#3A6EA5]"
+          {/* Portrait with arched top radius: border-radius: 50% 50% 1.5rem 1.5rem */}
+          <div className="md:col-span-5 flex justify-center">
+            <img 
+              src="/images/bio-wanja.jpg" 
+              alt="Portrait of Faith Wanja against a dark background, hand resting at her jaw"
+              className="w-full max-w-sm aspect-[4/5] object-cover rounded-t-full rounded-b-3xl shadow-sm border-2 border-[#D81B7A]/20"
+            />
+          </div>
+
+          {/* Biography text & links */}
+          <div className="md:col-span-7 space-y-6 text-left">
+            <h2 className="font-serif text-3xl sm:text-5xl text-[#3A1208] font-normal">
+              Biography
+            </h2>
+            <p className="text-base sm:text-lg leading-relaxed text-[#3A1208]/90 font-sans">
+              One-Jar Poetry is the artistic identity of Kenyan performance poet Faith Wanja, exploring the intersections of womanhood, identity, belonging, grief, love, social justice, and generational healing. Through spoken word, written poetry, and experiential storytelling, One-Jar Poetry creates spaces for emotional honesty, reflection, and connection.
+            </p>
+            <p className="text-base sm:text-lg leading-relaxed text-[#3A1208]/90 font-sans">
+              The practice embraces poetry as a means of documenting lived experiences, confronting difficult truths, and imagining possibilities for healing and becoming. From intimate reflections to socially conscious performances, One-Jar Poetry invites audiences to sit with discomfort, recognise themselves in shared stories, and discover the many ways words can hold what we carry.
+            </p>
+
+            {/* Action Row matching sample */}
+            <div className="pt-2 flex flex-wrap gap-3">
+              <a
+                href="/docs/Faith-Wanja-One-Jar-Poetry-EPK.pdf"
+                download="Faith-Wanja-One-Jar-Poetry-EPK.pdf"
+                className="btn-wanja cursor-pointer inline-flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download EPK</span>
+              </a>
+              <a
+                href="https://www.youtube.com/@one_jar_poetry"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-wanja-alt cursor-pointer inline-flex items-center gap-2"
+              >
+                <Youtube className="w-4 h-4" />
+                <span>Watch on YouTube</span>
+              </a>
+              <a
+                href="https://open.spotify.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-wanja-alt cursor-pointer inline-flex items-center gap-2"
+              >
+                <span>Listen on Spotify</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <button
+                onClick={onOpenBooking}
+                className="btn-wanja-plum cursor-pointer"
+              >
+                Book Recital
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 3. Recent Milestones Section (.sec.mile: background plum #3A1208, text cream #FFF6EC) */}
+      <section className="bg-[#3A1208] text-[#FFF6EC] px-6 sm:px-12 md:px-20 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <h2 className="font-serif text-3xl sm:text-5xl font-normal text-[#FFF6EC]">
+            Recent Milestones
+          </h2>
+
+          {/* Featured Card matching sample .feat */}
+          <div className="bg-white text-[#3A1208] rounded-3xl p-6 sm:p-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center shadow-lg">
+            <div className="md:col-span-5">
+              <img 
+                src="/images/milestone-are-you-home.jpg" 
+                alt="Wanja performing at the Are You Home? show, in a red outfit at the microphone" 
+                className="w-full aspect-[4/5] object-cover rounded-2xl shadow-sm"
               />
             </div>
-
-            {/* Tag Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
-              <span className="text-xs text-[#1A1A1A]/70 font-semibold mr-1 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5 text-[#E88D4D]" />
-                <span>Theme:</span>
+            <div className="md:col-span-7 space-y-4">
+              <span className="inline-block bg-[#FFD9E6] text-[#D81B7A] font-semibold text-xs px-3.5 py-1 rounded-full">
+                Completed show
               </span>
-              {allTags.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                    selectedTag === tag
-                      ? 'bg-[#3A6EA5] text-white'
-                      : 'bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A]/80 hover:border-[#3A6EA5]'
-                  }`}
+              <h3 className="font-serif text-3xl sm:text-5xl text-[#3A1208] font-normal leading-tight">
+                Are You Home?
+              </h3>
+              <p className="text-sm font-semibold text-[#D81B7A]">
+                17 October 2026 · Suave Kitchen and Social Club, Nairobi
+              </p>
+              <p className="text-base text-[#3A1208]/85 leading-relaxed">
+                Sometimes home is a place, the friends we collect along the way, a feeling, and also the courage to return to ourselves.
+              </p>
+
+              {/* Stats block */}
+              <div className="flex flex-wrap gap-8 py-2">
+                <div>
+                  <span className="block font-serif text-4xl sm:text-5xl text-[#D81B7A] font-normal leading-none">50</span>
+                  <span className="text-xs text-[#3A1208]/75">audience members</span>
+                </div>
+                <div>
+                  <span className="block font-serif text-4xl sm:text-5xl text-[#D81B7A] font-normal leading-none">15</span>
+                  <span className="text-xs text-[#3A1208]/75">poems performed</span>
+                </div>
+                <div>
+                  <span className="block font-serif text-4xl sm:text-5xl text-[#D81B7A] font-normal leading-none">2</span>
+                  <span className="text-xs text-[#3A1208]/75">collaborators</span>
+                </div>
+              </div>
+
+              <blockquote className="border-l-4 border-[#D81B7A] pl-4 italic font-serif text-base sm:text-lg text-[#3A1208] my-3">
+                “I loved everything about the show, from the venue, the setup, the sound, the performances, the poems👌🏾”
+              </blockquote>
+
+              <div className="pt-2">
+                <a
+                  href="https://www.instagram.com/p/De6jy8bR7mS/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-wanja cursor-pointer inline-flex items-center gap-2"
                 >
-                  {tag}
-                </button>
-              ))}
+                  <span>Watch the recap</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           </div>
 
-          {/* Poems Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPoems.map((poem) => (
-              <div
-                key={poem.id}
-                onClick={() => onOpenPoem(poem)}
-                className="p-6 rounded-2xl bg-white border border-[#E8DFD0] hover:border-[#C83C2E] shadow-sm transition-all cursor-pointer flex flex-col justify-between space-y-6 group"
-              >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between text-xs text-[#1A1A1A]/60">
-                    <span className="px-2.5 py-0.5 rounded bg-[#C83C2E]/10 text-[#C83C2E] font-bold border border-[#C83C2E]/20">
-                      {poem.year}
-                    </span>
-                    <span>{poem.readTimeMinutes} min read</span>
-                  </div>
+          {/* Timeline list matching sample .tl */}
+          <ul className="border-l-4 border-[#D81B7A] pl-6 space-y-6 max-w-2xl text-left list-none mt-8">
+            <li className="space-y-1">
+              <span className="font-serif text-xl sm:text-2xl text-[#FFF6EC] font-normal block">
+                2026 PYSK Featured Poet
+              </span>
+              <p className="text-sm text-[#FFF6EC]/80">
+                Featured at the Poets You Should Know Katiba Edition 2026.
+              </p>
+            </li>
+            <li className="space-y-1">
+              <span className="font-serif text-xl sm:text-2xl text-[#FFF6EC] font-normal block">
+                2026 Kitale Film Week Featured Poet
+              </span>
+              <p className="text-sm text-[#FFF6EC]/80">
+                Featured as a poet during the 2026 Kitale Film Week Festival.
+              </p>
+            </li>
+          </ul>
 
-                  <h3 className="font-serif text-2xl font-bold text-[#1A1A1A] group-hover:text-[#C83C2E] transition-colors">
-                    {poem.title}
-                  </h3>
+        </div>
+      </section>
 
-                  <p className="font-poem italic text-[#1A1A1A]/75 text-base leading-relaxed line-clamp-4 pl-3 border-l-2 border-[#C83C2E]/40">
-                    "{poem.stanzas[0]}"
-                  </p>
+      {/* 4. Poems Collection (Cards with Accordion Stanzas) */}
+      <section className="px-6 sm:px-12 md:px-20 py-16 bg-[#FFF6EC] text-[#3A1208]">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h2 className="font-serif text-4xl sm:text-6xl text-[#3A1208] font-normal">
+                Poems
+              </h2>
+              <p className="text-sm text-[#3A1208]/75 mt-1 font-sans">
+                Click any poem to open its full stanzas, or view detailed context.
+              </p>
+            </div>
+          </div>
 
-                  <p className="text-xs text-[#1A1A1A]/65 line-clamp-2">
-                    {poem.excerpt}
-                  </p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+            {poems.map((poem) => {
+              const isOpen = expandedPoemId === poem.id;
+              const hasContentNote = poem.tags.some(t => t.toLowerCase().includes('content note'));
 
-                <div className="space-y-3 pt-4 border-t border-[#E8DFD0]">
-                  <div className="flex flex-wrap gap-1">
-                    {poem.tags.map((t) => (
-                      <span key={t} className="text-[10px] px-2 py-0.5 rounded bg-[#FAF5ED] border border-[#E8DFD0] text-[#1A1A1A]/70 font-medium">
-                        #{t}
+              return (
+                <div 
+                  key={poem.id} 
+                  className="bg-white rounded-2xl p-6 border border-[#FFD9E6] shadow-xs flex flex-col transition-all hover:border-[#D81B7A]"
+                >
+                  {/* Summary / Header */}
+                  <div 
+                    onClick={() => togglePoem(poem.id)}
+                    className="cursor-pointer group select-none"
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-[#D81B7A] bg-[#FFD9E6] px-2.5 py-0.5 rounded-full">
+                        {poem.year}
                       </span>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center justify-between text-xs font-semibold text-[#3A6EA5] group-hover:text-[#C83C2E]">
-                    <span className="flex items-center gap-1">
-                      <Volume2 className="w-3.5 h-3.5" />
-                      <span>Read & Listen to Poem</span>
-                    </span>
-                    <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {filteredPoems.length === 0 && (
-            <div className="p-12 text-center text-[#1A1A1A]/60 bg-white border border-[#E8DFD0] rounded-2xl">
-              No poems found matching your search query. Try resetting your theme filter.
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* SUB-TAB 2: PERFORMANCES */}
-      {activeSubTab === 'performances' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {publishedVideos.map((video) => (
-              <div
-                key={video.id}
-                onClick={() => onOpenVideo(video)}
-                className="p-6 rounded-2xl bg-white border border-[#E8DFD0] hover:border-[#3A6EA5] shadow-sm transition-all cursor-pointer space-y-4 group"
-              >
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-black">
-                  <img
-                    src={video.thumbnailUrl || "/images/wanja_navy_stage.jpg"}
-                    alt={video.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-[#C83C2E] text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
-                      <Play className="w-6 h-6 ml-1" />
+                      <span className="text-xs text-[#3A1208]/60 font-semibold group-hover:text-[#D81B7A]">
+                        {isOpen ? 'Close [-]' : 'Read [+]'}
+                      </span>
                     </div>
-                  </div>
-                  <div className="absolute bottom-3 right-3 px-2 py-1 bg-black/80 text-white text-[10px] rounded font-mono">
-                    {video.duration}
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <div className="text-xs font-bold text-[#E88D4D] uppercase tracking-wider">
-                    {video.event} · {video.date}
+                    <h3 className="font-serif text-2xl sm:text-3xl text-[#3A1208] font-normal group-hover:text-[#D81B7A] transition-colors leading-tight">
+                      {poem.title}
+                    </h3>
+
+                    {hasContentNote && (
+                      <p className="text-[11px] text-[#D63A0A] font-semibold mt-1">
+                        {poem.tags.find(t => t.toLowerCase().includes('content note'))}
+                      </p>
+                    )}
+
+                    {!isOpen && (
+                      <p className="text-xs text-[#3A1208]/75 line-clamp-3 mt-2 leading-relaxed">
+                        {poem.excerpt}
+                      </p>
+                    )}
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-[#1A1A1A] group-hover:text-[#3A6EA5] transition-colors">
-                    {video.title}
-                  </h3>
-                  <p className="text-xs text-[#1A1A1A]/70 leading-relaxed">
-                    {video.description}
-                  </p>
+
+                  {/* Expandable Stanzas matching sample .poem */}
+                  {isOpen && (
+                    <div className="mt-4 pt-4 border-t border-[#FFD9E6] animate-fadeIn space-y-4">
+                      <div className="font-poem text-base sm:text-lg text-[#3A1208] leading-relaxed whitespace-pre-line bg-[#FFF6EC]/50 p-4 rounded-xl">
+                        {poem.stanzas.join('\n\n')}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        <button
+                          onClick={() => onOpenPoem(poem)}
+                          className="btn-wanja text-xs py-1.5 px-4 cursor-pointer"
+                        >
+                          Deep Reading View
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-      )}
+      </section>
 
-      {/* SUB-TAB 3: GALLERY */}
-      {activeSubTab === 'gallery' && (
-        <div className="space-y-6">
-          {/* Gallery Category Filter */}
-          <div className="flex items-center gap-2">
-            {['All', 'Performance', 'Portrait', 'Behind The Scenes', 'Collaboration'].map((cat) => (
+      {/* 5. Gallery Section: Blush (#FFD9E6) with Multi-Column Masonry Grid */}
+      <section className="bg-[#FFD9E6] text-[#3A1208] px-6 sm:px-12 md:px-20 py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div>
+            <h2 className="font-serif text-4xl sm:text-6xl font-normal text-[#3A1208]">
+              Gallery
+            </h2>
+            <p className="text-sm text-[#3A1208]/80 mt-1 font-sans">
+              Performance moments, stage recitals, and red carpet captures. Click any photo to enlarge.
+            </p>
+          </div>
+
+          {/* Masonry Columns matching sample .gal */}
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-5 space-y-5">
+            {GALLERY.map((item, index) => (
               <button
-                key={cat}
-                onClick={() => setSelectedGalleryCategory(cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
-                  selectedGalleryCategory === cat
-                    ? 'bg-[#3A6EA5] text-white'
-                    : 'bg-white border border-[#E8DFD0] text-[#1A1A1A]/70 hover:bg-[#FAF5ED]'
-                }`}
+                key={item.id}
+                onClick={() => openLightbox(index)}
+                aria-label={`Open photo: ${item.title}`}
+                className="w-full text-left break-inside-avoid block rounded-2xl overflow-hidden group focus:outline-none focus:ring-4 focus:ring-[#D81B7A] cursor-pointer bg-black"
               >
-                {cat}
+                <div className="relative overflow-hidden">
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.title} 
+                    loading="lazy"
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end text-white">
+                    <p className="font-serif text-lg leading-tight">{item.title}</p>
+                    <p className="text-xs text-white/80">{item.caption}</p>
+                  </div>
+                </div>
               </button>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredGallery.map((g) => (
-              <div key={g.id} className="rounded-2xl overflow-hidden bg-white border border-[#E8DFD0] shadow-xs space-y-3 p-3">
-                <div className="aspect-square rounded-xl overflow-hidden bg-stone-100">
-                  <img src={g.imageUrl} alt={g.title} className="w-full h-full object-cover hover:scale-105 transition-transform" />
-                </div>
-                <div className="px-1 space-y-1">
-                  <div className="text-[10px] uppercase font-bold text-[#E88D4D]">{g.category} · {g.location}</div>
-                  <h4 className="font-serif text-sm font-bold text-[#1A1A1A]">{g.title}</h4>
-                  <p className="text-xs text-[#1A1A1A]/60">{g.caption}</p>
-                </div>
+      {/* 6. Lightbox Modal Dialog matching sample dialog#lb */}
+      {lightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <div 
+            className="bg-[#3A1208] text-[#FFF6EC] rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Icon */}
+            <button
+              onClick={() => setLightboxOpen(false)}
+              className="absolute top-4 right-4 text-white/70 hover:text-white p-1 rounded-full cursor-pointer"
+              aria-label="Close Lightbox"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Lightbox Image Preview */}
+            <div className="rounded-xl overflow-hidden bg-black max-h-[65vh] flex items-center justify-center">
+              <img 
+                src={GALLERY[lightboxIndex].imageUrl} 
+                alt={GALLERY[lightboxIndex].title}
+                className="max-h-[65vh] w-auto max-w-full object-contain mx-auto"
+              />
+            </div>
+
+            {/* Caption */}
+            <div>
+              <h4 className="font-serif text-xl sm:text-2xl text-[#FFF6EC] font-normal">
+                {GALLERY[lightboxIndex].title}
+              </h4>
+              <p className="text-xs sm:text-sm text-[#FFF6EC]/80 mt-1">
+                {GALLERY[lightboxIndex].caption}
+              </p>
+            </div>
+
+            {/* Navigation Buttons matching sample */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#FFF6EC]/15">
+              <div className="flex gap-2">
+                <button
+                  onClick={prevLightbox}
+                  className="btn-wanja-alt text-xs py-1.5 px-4 bg-transparent text-[#FFF6EC] border border-[#FFF6EC]/30 hover:bg-[#D81B7A] cursor-pointer inline-flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
+                <button
+                  onClick={nextLightbox}
+                  className="btn-wanja-alt text-xs py-1.5 px-4 bg-transparent text-[#FFF6EC] border border-[#FFF6EC]/30 hover:bg-[#D81B7A] cursor-pointer inline-flex items-center gap-1"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
-            ))}
+
+              <button
+                onClick={() => setLightboxOpen(false)}
+                className="btn-wanja text-xs py-1.5 px-5 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* Booking Prompt Banner */}
-      <div className="p-8 rounded-2xl bg-white border border-[#E8DFD0] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6">
-        <div>
-          <h3 className="font-serif text-2xl font-bold text-[#1A1A1A]">
-            Commission an Original Spoken Word Piece
-          </h3>
-          <p className="text-xs text-[#1A1A1A]/70 mt-1">
-            Wanja collaborates with cultural institutions, campaigns, and festivals for live recitals & commissions.
-          </p>
-        </div>
-        <button
-          onClick={onOpenBooking}
-          className="px-6 py-3 rounded-lg bg-[#C83C2E] text-white text-xs font-semibold hover:bg-[#B03225] whitespace-nowrap shadow-xs cursor-pointer"
-        >
-          Request Spoken Word Booking
-        </button>
-      </div>
 
     </div>
   );

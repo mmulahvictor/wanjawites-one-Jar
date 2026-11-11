@@ -185,37 +185,37 @@ export const StyleGuideSection: React.FC = () => {
 
             {/* Presets */}
             <div>
-              <span className="block font-bold text-[#1A1A1A] mb-2">Preset Brand Swatches</span>
+              <span className="block font-bold text-[#3A1208] mb-2">Preset Brand Swatches</span>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => { setFgColor('#1A1A1A'); setBgColor('#FFFBF5'); }}
-                  className="px-2.5 py-1 rounded bg-[#1A1A1A] text-[#FFFBF5] text-[11px] font-medium border border-[#333333] cursor-pointer"
+                  onClick={() => { setFgColor('#3A1208'); setBgColor('#FFF6EC'); }}
+                  className="px-2.5 py-1 rounded bg-[#3A1208] text-[#FFF6EC] text-[11px] font-medium border border-[#3A1208] cursor-pointer"
                 >
-                  Black on Warm White
+                  Plum on Cream
                 </button>
                 <button
-                  onClick={() => { setFgColor('#C83C2E'); setBgColor('#FFFBF5'); }}
-                  className="px-2.5 py-1 rounded bg-[#C83C2E] text-white text-[11px] font-medium cursor-pointer"
+                  onClick={() => { setFgColor('#D81B7A'); setBgColor('#FFF6EC'); }}
+                  className="px-2.5 py-1 rounded bg-[#D81B7A] text-white text-[11px] font-medium cursor-pointer"
                 >
-                  Brand Red on Warm White
+                  Fuchsia on Cream
                 </button>
                 <button
-                  onClick={() => { setFgColor('#FFFBF5'); setBgColor('#1A1A1A'); }}
-                  className="px-2.5 py-1 rounded bg-[#FFFBF5] text-[#1A1A1A] text-[11px] font-medium border border-[#E8DFD0] cursor-pointer"
+                  onClick={() => { setFgColor('#3A1208'); setBgColor('#FDEFBF'); }}
+                  className="px-2.5 py-1 rounded bg-[#FDEFBF] text-[#3A1208] text-[11px] font-medium border border-[#3A1208]/30 cursor-pointer"
                 >
-                  Warm White on Black
+                  Plum on Butter
                 </button>
                 <button
-                  onClick={() => { setFgColor('#3A6EA5'); setBgColor('#FFFBF5'); }}
-                  className="px-2.5 py-1 rounded bg-[#3A6EA5] text-white text-[11px] font-medium cursor-pointer"
+                  onClick={() => { setFgColor('#D81B7A'); setBgColor('#FFD9E6'); }}
+                  className="px-2.5 py-1 rounded bg-[#FFD9E6] text-[#D81B7A] text-[11px] font-medium border border-[#D81B7A]/40 cursor-pointer"
                 >
-                  Brand Blue on Warm White
+                  Fuchsia on Blush
                 </button>
                 <button
-                  onClick={() => { setFgColor('#E88D4D'); setBgColor('#1A1A1A'); }}
-                  className="px-2.5 py-1 rounded bg-[#1A1A1A] text-[#E88D4D] text-[11px] font-medium border border-[#E88D4D]/40 cursor-pointer"
+                  onClick={() => { setFgColor('#FFF6EC'); setBgColor('#3A1208'); }}
+                  className="px-2.5 py-1 rounded bg-[#3A1208] text-[#FFF6EC] text-[11px] font-medium border border-[#FFD9E6]/40 cursor-pointer"
                 >
-                  Brand Orange on Black
+                  Cream on Plum
                 </button>
               </div>
             </div>

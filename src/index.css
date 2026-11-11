@@ -1,50 +1,182 @@
 @import "tailwindcss";
 
 @theme {
-  --color-warm-white: #FFFBF5;
-  --color-soft-black: #1A1A1A;
-  --color-brand-red: #C83C2E;
-  --color-brand-blue: #3A6EA5;
-  --color-brand-orange: #E88D4D;
-  
-  --color-brand-red-hover: #B03225;
-  --color-brand-blue-hover: #2E5A88;
-  --color-brand-orange-hover: #D67A38;
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
 
-  --color-warm-surface: #FAF5ED;
+  --color-fu: #D81B7A;
+  --color-pl: #3A1208;
+  --color-ma: #F9B91F;
+  --color-co: #FF6B5E;
+  --color-bl: #FFD9E6;
+  --color-cr: #FFF6EC;
+  --color-or: #D63A0A;
+  --color-butter: #FDEFBF;
+
+  --color-brand-fuchsia: #D81B7A;
+  --color-brand-plum: #3A1208;
+  --color-brand-blush: #FFD9E6;
+  --color-brand-cream: #FFF6EC;
+  --color-brand-yellow: #FDEFBF;
+
+  /* Compatibility tokens with the new design palette */
+  --color-warm-white: #FFF6EC;
+  --color-soft-black: #3A1208;
+  --color-brand-red: #D81B7A;
+  --color-brand-blue: #3A1208;
+  --color-brand-orange: #D63A0A;
+
+  --color-warm-surface: #FFF6EC;
   --color-warm-card: #FFFFFF;
-  --color-warm-muted: #F2EAE0;
-  --color-warm-border: #E8DFD0;
-  --color-warm-border-dark: #D4C6B2;
+  --color-warm-muted: #FFD9E6;
+  --color-warm-border: #FFD9E6;
+  --color-warm-border-dark: #3A1208;
 }
 
 @layer base {
   :root {
-    --font-serif: 'Cormorant Garamond', Georgia, serif;
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-    
-    --color-warm-white: #FFFBF5;
-    --color-soft-black: #1A1A1A;
-    --color-brand-red: #C83C2E;
-    --color-brand-blue: #3A6EA5;
-    --color-brand-orange: #E88D4D;
+    --fu: #D81B7A;
+    --pl: #3A1208;
+    --ma: #F9B91F;
+    --co: #FF6B5E;
+    --bl: #FFD9E6;
+    --cr: #FFF6EC;
+    --or: #D63A0A;
+    --bg: #FFF6EC;
+    --ink: #3A1208;
+    --card: #FFFFFF;
+    --butter: #FDEFBF;
+
+    --font-serif: 'DM Serif Display', Georgia, serif;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #24100A;
+      --ink: #FFF6EC;
+      --card: #3A1208;
+    }
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1A1A1A;
-    background-color: #FFFBF5;
+    color: var(--ink);
+    background-color: var(--bg);
+    line-height: 1.65;
   }
 
-  h1, h2, h3, .font-serif-heading {
-    font-family: var(--font-display);
-    color: #1A1A1A;
+  h1, h2, h3, h4, .font-serif-heading, .font-display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    line-height: 1.1;
   }
 
   .font-poem {
     font-family: var(--font-serif);
+    line-height: 1.85;
   }
+}
+
+/* Wanja Writes Signature Buttons */
+.btn-wanja {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--fu);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 0.75rem 1.7rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  border: 0;
+}
+.btn-wanja:hover {
+  background-color: var(--pl);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+}
+
+.btn-wanja-alt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--cr);
+  color: var(--fu);
+  border-radius: 9999px;
+  padding: 0.75rem 1.7rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px var(--fu);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  border: 0;
+}
+.btn-wanja-alt:hover {
+  background-color: var(--pl);
+  color: #FFFFFF;
+  box-shadow: inset 0 0 0 2px var(--pl);
+  transform: translateY(-2px);
+}
+
+.btn-wanja-plum {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pl);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 0.75rem 1.7rem;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  border: 0;
+}
+.btn-wanja-plum:hover {
+  background-color: var(--fu);
+  transform: translateY(-2px);
+}
+
+/* Jar Circle Decorative Motif */
+.jar-circle {
+  position: absolute;
+  right: -8vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(52vw, 520px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--fu);
+  pointer-events: none;
+}
+.jar-circle.opacity-85 {
+  opacity: 0.85;
+}
+
+/* Clean Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cr);
+}
+::-webkit-scrollbar-thumb {
+  background: #E5B2C5;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fu);
 }
 
 /* Accessible High Contrast Mode (WCAG AAA) */
@@ -52,41 +184,55 @@ body.high-contrast-mode {
   background-color: #000000 !important;
   color: #FFFFFF !important;
 }
+body.high-contrast-mode header,
+body.high-contrast-mode main,
+body.high-contrast-mode section,
+body.high-contrast-mode article,
+body.high-contrast-mode [class*="bg-"] {
+  background-color: #0A0A0A !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+}
+body.high-contrast-mode h1,
+body.high-contrast-mode h2,
+body.high-contrast-mode h3,
+body.high-contrast-mode h4,
+body.high-contrast-mode p,
+body.high-contrast-mode span,
+body.high-contrast-mode div,
+body.high-contrast-mode label,
+body.high-contrast-mode li {
+  color: #FFFFFF !important;
+}
+body.high-contrast-mode input,
+body.high-contrast-mode textarea,
+body.high-contrast-mode select {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: 2px solid #FFFFFF !important;
+}
 body.high-contrast-mode * {
   border-color: #FFFFFF !important;
 }
 body.high-contrast-mode button,
 body.high-contrast-mode a {
-  outline: 2px solid #E88D4D !important;
+  outline: 2px solid var(--fu) !important;
 }
 
-/* Custom warm scrollbar */
-::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-::-webkit-scrollbar-track {
-  background: #FFFBF5;
-}
-::-webkit-scrollbar-thumb {
-  background: #D4C6B2;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #3A6EA5;
+/* Accessible Reduced Motion Mode */
+body.reduced-motion-mode *,
+body.reduced-motion-mode *::before,
+body.reduced-motion-mode *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
-/* Paper texture accent matching Warm White palette */
-.paper-texture {
-  background-color: #FFFBF5;
-  background-image: radial-gradient(#E8DFD0 0.85px, transparent 0.85px);
-  background-size: 16px 16px;
-}
-
-.jar-glow {
-  box-shadow: 0 0 35px -5px rgba(200, 60, 46, 0.15);
-}
-
-.blue-glow {
-  box-shadow: 0 0 35px -5px rgba(58, 110, 165, 0.18);
+/* Print Styles */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
 }

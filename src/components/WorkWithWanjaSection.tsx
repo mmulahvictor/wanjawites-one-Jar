@@ -1,134 +1,164 @@
 import React, { useState } from 'react';
 import { Service } from '../types';
-import { SERVICES } from '../data/mockData';
-import { Sparkles, Check, ArrowRight, Clock, Users, PenTool, Mic, BookOpen, Calculator } from 'lucide-react';
+import { SERVICES as DEFAULT_SERVICES } from '../data/mockData';
+import { getServices } from '../lib/cmsStore';
+import { Sparkles, Check, ArrowRight } from 'lucide-react';
 
 interface WorkWithWanjaSectionProps {
+  services?: Service[];
   onOpenBookingWithService: (serviceId: string) => void;
 }
 
-export const WorkWithWanjaSection: React.FC<WorkWithWanjaSectionProps> = ({ onOpenBookingWithService }) => {
-  const [selectedServiceId, setSelectedServiceId] = useState<string>(SERVICES[0].id);
+export const WorkWithWanjaSection: React.FC<WorkWithWanjaSectionProps> = ({
+  services,
+  onOpenBookingWithService,
+}) => {
+  const serviceList = (services || getServices() || DEFAULT_SERVICES).filter(
+    (s) => (s.status || 'published') === 'published'
+  );
 
-  const selectedService = SERVICES.find((s) => s.id === selectedServiceId) || SERVICES[0];
+  const [selectedServiceId, setSelectedServiceId] = useState<string>(
+    serviceList[0]?.id || DEFAULT_SERVICES[0].id
+  );
+
+  const selectedService =
+    serviceList.find((s) => s.id === selectedServiceId) ||
+    serviceList[0] ||
+    DEFAULT_SERVICES[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 pb-16">
+    <div className="w-full">
       
-      {/* Header Banner */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-[#1A1A1A] text-white space-y-4 border border-[#2A2A2A] shadow-sm">
-        <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E88D4D]">
-          <Sparkles className="w-4 h-4 text-[#E88D4D]" />
-          <span>Professional Services & Collaborations</span>
+      {/* 1. Header Banner */}
+      <section className="bg-[#D81B7A] text-white px-6 sm:px-12 md:px-20 py-16 sm:py-20">
+        <div className="max-w-4xl space-y-4">
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl font-normal leading-[1.02] tracking-tight">
+            Services & Consulting
+          </h1>
+          <p className="text-base sm:text-lg text-white/90 max-w-2xl font-sans">
+            Spoken word performances, strategic communications, culture reviews, and creative writing masterclasses.
+          </p>
         </div>
-        <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5]">
-          Work With Wanja
-        </h1>
-        <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed">
-          Bringing bespoke branded poetry, electrifying spoken-word stage performances, masterclass poetry workshops, and interdisciplinary artistic collaborations to your platform.
-        </p>
-      </div>
+      </section>
 
-      {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {SERVICES.map((service) => {
-          const isSelected = selectedServiceId === service.id;
-          return (
-            <div
-              key={service.id}
-              onClick={() => setSelectedServiceId(service.id)}
-              className={`p-6 rounded-2xl cursor-pointer transition-all border flex flex-col justify-between space-y-6 ${
-                isSelected
-                  ? 'bg-[#1A1A1A] text-white border-[#C83C2E] shadow-md scale-102'
-                  : 'bg-white text-[#1A1A1A] border-[#E8DFD0] hover:border-[#3A6EA5] shadow-xs'
-              }`}
-            >
-              <div className="space-y-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold ${
-                  isSelected ? 'bg-[#C83C2E] text-white' : 'bg-[#FAF5ED] text-[#C83C2E] border border-[#E8DFD0]'
-                }`}>
-                  <Sparkles className="w-6 h-6" />
+      {/* 2. Main Services Body */}
+      <section className="px-6 sm:px-12 md:px-20 py-16 bg-[#FFF6EC] text-[#3A1208]">
+        <div className="max-w-7xl mx-auto space-y-12">
+          
+          {/* Services Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {serviceList.map((service) => {
+              const isSelected = selectedService.id === service.id;
+
+              return (
+                <div
+                  key={service.id}
+                  onClick={() => setSelectedServiceId(service.id)}
+                  className={`p-6 rounded-2xl cursor-pointer transition-all border flex flex-col justify-between space-y-4 ${
+                    isSelected
+                      ? 'bg-[#3A1208] text-[#FFF6EC] border-[#D81B7A] shadow-md scale-[1.02]'
+                      : 'bg-white text-[#3A1208] border-[#FFD9E6] hover:border-[#D81B7A] shadow-xs'
+                  }`}
+                >
+                  <div className="space-y-3">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                      isSelected ? 'bg-[#D81B7A] text-white' : 'bg-[#FFD9E6] text-[#D81B7A]'
+                    }`}>
+                      {service.typicalLeadTime}
+                    </span>
+
+                    <h3 className="font-serif text-2xl font-normal leading-snug">
+                      {service.title}
+                    </h3>
+
+                    <p className={`text-xs leading-relaxed line-clamp-3 ${
+                      isSelected ? 'text-[#FFF6EC]/80' : 'text-[#3A1208]/75'
+                    }`}>
+                      {service.tagline}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-current/20 flex items-center justify-between text-xs font-semibold">
+                    <span className={isSelected ? 'text-[#D81B7A]' : 'text-[#3A1208]'}>
+                      {isSelected ? 'Selected' : 'Select'}
+                    </span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Deep Dive Card */}
+          <div className="p-8 sm:p-12 rounded-3xl bg-white border border-[#FFD9E6] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-6">
+              <div>
+                <span className="text-xs uppercase font-bold text-[#D81B7A] bg-[#FFD9E6] px-3 py-1 rounded-full inline-block mb-3">
+                  Service Scope
+                </span>
+                <h2 className="font-serif text-3xl sm:text-5xl text-[#3A1208] font-normal leading-tight">
+                  {selectedService.title}
+                </h2>
+              </div>
+
+              <p className="text-base sm:text-lg text-[#3A1208]/85 leading-relaxed font-sans">
+                {selectedService.description}
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
+                <div className="p-4 rounded-xl bg-[#FFF6EC] border border-[#FFD9E6] space-y-1">
+                  <span className="font-bold text-[#D81B7A] uppercase block">Target Audience / Clients</span>
+                  <span className="text-[#3A1208] font-medium text-sm">{selectedService.targetAudience}</span>
                 </div>
 
-                <h3 className="font-serif text-2xl font-bold leading-tight">
-                  {service.title}
-                </h3>
+                <div className="p-4 rounded-xl bg-[#FFF6EC] border border-[#FFD9E6] space-y-1">
+                  <span className="font-bold text-[#D81B7A] uppercase block">Typical Delivery Timeline</span>
+                  <span className="text-[#3A1208] font-medium text-sm">{selectedService.typicalLeadTime}</span>
+                </div>
+              </div>
 
-                <p className={`text-xs leading-relaxed ${isSelected ? 'text-stone-300' : 'text-[#1A1A1A]/70'}`}>
-                  {service.tagline}
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs uppercase font-bold text-[#3A1208] tracking-wider">
+                  Deliverables & Outputs:
+                </h4>
+                <ul className="space-y-2 text-sm text-[#3A1208]/85">
+                  {selectedService.deliverables.map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-[#FFD9E6] text-[#D81B7A] flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="lg:col-span-4 p-6 sm:p-8 rounded-2xl bg-[#3A1208] text-[#FFF6EC] space-y-6 flex flex-col justify-between text-left">
+              <div className="space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#D81B7A] bg-[#FFD9E6] px-2.5 py-0.5 rounded-full inline-block">
+                  Commission Wanja
+                </span>
+                <h3 className="font-serif text-2xl text-[#FFF6EC] font-normal">
+                  Ready to collaborate?
+                </h3>
+                <p className="text-xs text-[#FFF6EC]/80 leading-relaxed font-sans">
+                  Submit a structured proposal with your event date, organization, and scope.
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-current/20 flex items-center justify-between text-xs font-semibold">
-                <span className={isSelected ? 'text-[#E88D4D]' : 'text-[#3A6EA5]'}>
-                  {isSelected ? 'Currently Selected' : 'View Details'}
-                </span>
-                <span className={isSelected ? 'text-[#E88D4D]' : 'text-[#3A6EA5]'}>→</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Service Detail Deep Dive Card */}
-      <div className="p-8 sm:p-12 rounded-2xl bg-white border border-[#E8DFD0] shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        <div className="lg:col-span-8 space-y-6">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#C83C2E]">
-            <Sparkles className="w-4 h-4 text-[#E88D4D]" />
-            <span>Service Overview</span>
-          </div>
-
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1A1A1A]">
-            {selectedService.title}
-          </h2>
-
-          <p className="text-base text-[#1A1A1A]/80 leading-relaxed">
-            {selectedService.description}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs pt-2">
-            <div className="p-4 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] space-y-1">
-              <span className="font-bold text-[#3A6EA5] uppercase block">Target Audience / Clients</span>
-              <span className="text-[#1A1A1A] font-medium">{selectedService.targetAudience}</span>
-            </div>
-
-            <div className="p-4 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] space-y-1">
-              <span className="font-bold text-[#3A6EA5] uppercase block">Typical Lead Time</span>
-              <span className="text-[#1A1A1A] font-medium">{selectedService.typicalLeadTime}</span>
+              <button
+                onClick={() => onOpenBookingWithService(selectedService.id)}
+                className="btn-wanja text-xs py-3 px-6 cursor-pointer inline-flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-amber-200" />
+                <span>Book This Service</span>
+              </button>
             </div>
           </div>
 
-          <div className="space-y-2 pt-2">
-            <h4 className="text-xs uppercase font-bold text-[#1A1A1A] tracking-wider">
-              Expected Deliverables:
-            </h4>
-            <ul className="space-y-1.5 text-xs text-[#1A1A1A]/80">
-              {selectedService.deliverables.map((item, idx) => (
-                <li key={idx} className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-[#C83C2E]" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
-
-        <div className="lg:col-span-4 p-8 rounded-2xl bg-[#1A1A1A] text-white space-y-6 text-center border border-[#2A2A2A] shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-[#FFFBF5]">
-            Ready to Commission or Book?
-          </h3>
-          <p className="text-xs text-stone-300">
-            Submit a structured inquiry to receive a tailored project proposal and scheduling options within 48 hours.
-          </p>
-          <button
-            onClick={() => onOpenBookingWithService(selectedService.id)}
-            className="w-full py-3.5 rounded-lg bg-[#C83C2E] text-white text-sm font-bold hover:bg-[#B03225] transition-colors shadow-xs flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4 text-amber-200" />
-            <span>Book {selectedService.title}</span>
-          </button>
-        </div>
-      </div>
+      </section>
 
     </div>
   );

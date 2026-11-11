@@ -127,7 +127,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
     );
 
     if (!result.success) {
-      alert(result.error || 'Failed to update privileges.');
+      onToast(result.error || 'Failed to update privileges.');
       return;
     }
 
@@ -141,7 +141,7 @@ export const UserManagementView: React.FC<UserManagementViewProps> = ({
 
     const result = deleteAdminUser(deletingUser.id, currentAdmin);
     if (!result.success) {
-      alert(result.error || 'Failed to delete account.');
+      onToast(result.error || 'Failed to delete account.');
       return;
     }
 

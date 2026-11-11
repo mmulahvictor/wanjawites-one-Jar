@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Poem, Article, VideoItem, Service, Achievement, SiteSettings, 
-  CmsContentType, ContentStatus, NavigationTab 
+  CmsContentType, ContentStatus, NavigationTab, BookingInquiry, InquiryStatus, NewsletterSubscriber 
 } from '../types';
 import { 
   getPoems, savePoem, deletePoem,
@@ -10,14 +10,17 @@ import {
   getServices, saveService, deleteService,
   getAchievements, saveAchievement, deleteAchievement,
   getSiteSettings, saveSiteSettings,
+  getInquiries, updateInquiryStatus, deleteInquiry,
+  getSubscribers, deleteSubscriber,
   exportCmsData, importCmsData, resetCmsData,
   CMS_UPDATE_EVENT
 } from '../lib/cmsStore';
 import { 
   FileText, BookOpen, Video, Briefcase, Award, Settings, 
-  Plus, Edit3, Trash2, Eye, EyeOff, Download, Upload, RefreshCw, 
-  Check, X, Search, Filter, Sparkles, Tag, ArrowLeft, Layout, CheckCircle2, AlertCircle, Youtube,
-  Lock, ShieldCheck, KeyRound, LogOut, Users, Shield, Play, ExternalLink, Calendar, Clock, MapPin
+  Plus, Edit3, Trash2, Eye, Download, Upload, RefreshCw, 
+  Check, X, Search, Filter, Layout, CheckCircle2, AlertCircle, Youtube,
+  Lock, ShieldCheck, LogOut, Users, Play, ExternalLink, Calendar, Clock, MapPin,
+  Inbox, Mail, Phone, Building2
 } from 'lucide-react';
 import { 
   getCurrentAdmin, hasAdminPrivilege, logoutAdmin, 
@@ -25,6 +28,7 @@ import {
 } from '../lib/authService';
 import { UserManagementView } from './UserManagementView';
 import { VideoEditorModal } from './VideoEditorModal';
+import { extractYouTubeId } from '../lib/videoUtils';
 
 interface CmsStudioSectionProps {
   onNavigateTab: (tab: NavigationTab) => void;
@@ -43,6 +47,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [inquiries, setInquiries] = useState<BookingInquiry[]>([]);
+  const [subscribers, setSubscribers] = useState<NewsletterSubscriber[]>([]);
   const [siteSettings, setSiteSettings] = useState<SiteSettings>({
     siteName: '',
     siteTagline: '',
@@ -52,7 +58,9 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [inquiryFilter, setInquiryFilter] = useState<'all' | 'booking' | 'contact' | 'subscribers'>('all');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
 
   // Cryptographic RBAC Session State
   const [admin, setAdmin] = useState<AdminUser | null>(getCurrentAdmin());
@@ -73,7 +81,6 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [previewMode, setPreviewMode] = useState(false);
 
   // Dedicated Video Editor Modal State
   const [videoModalOpen, setVideoModalOpen] = useState(false);
@@ -87,6 +94,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     setVideos(getVideos());
     setServices(getServices());
     setAchievements(getAchievements());
+    setInquiries(getInquiries());
+    setSubscribers(getSubscribers());
     setSiteSettings(getSiteSettings());
   };
 
@@ -99,7 +108,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 3500);
   };
 
   // Helper for generating slug
@@ -111,6 +120,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       .replace(/[\s_-]+/g, '-')
       .replace(/^-+|-+$/g, '');
   };
+
+  const canPublish = hasAdminPrivilege('canPublishContent');
 
   // ---------------- POEM MUTATIONS ----------------
   const handleCreatePoem = () => {
@@ -131,8 +142,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       tags: ['Excavation', 'Memory'],
       featured: false,
       context: 'Enter the background story / excavation context for this poem...',
-      status: 'published',
-      readTimeMinutes: 3
+      status: canPublish ? 'published' : 'draft',
+      readTimeMinutes: 3,
+      youtubeId: '',
+      relatedWritingSlug: ''
     };
     setEditingItem(newPoem);
     setIsCreatingNew(true);
@@ -145,10 +158,17 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       return;
     }
     if (!editingItem.title) return;
-    savePoem(editingItem);
+    const finalStatus: ContentStatus = !canPublish ? 'draft' : (editingItem.status || 'published');
+    const cleanYtId = editingItem.youtubeId ? (extractYouTubeId(editingItem.youtubeId) || editingItem.youtubeId.trim()) : undefined;
+    savePoem({
+      ...editingItem,
+      status: finalStatus,
+      youtubeId: cleanYtId || undefined,
+      relatedWritingSlug: editingItem.relatedWritingSlug || undefined,
+    });
     setEditingItem(null);
     setIsCreatingNew(false);
-    showToast(`Poem "${editingItem.title}" saved & updated live on the Poetry page!`);
+    showToast(`Poem "${editingItem.title}" saved (${finalStatus})!`);
   };
 
   const handleDeletePoem = (id: string) => {
@@ -190,7 +210,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
         'Second paragraph exploring the themes in depth...'
       ],
       tags: ['Philosophy', 'Craft'],
-      status: 'published'
+      status: canPublish ? 'published' : 'draft',
+      relatedPoemSlug: ''
     };
     setEditingItem(newArticle);
     setIsCreatingNew(true);
@@ -203,10 +224,16 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       return;
     }
     if (!editingItem.title) return;
-    saveArticle(editingItem);
+    const finalStatus: ContentStatus = !canPublish ? 'draft' : (editingItem.status || 'published');
+    saveArticle({
+      ...editingItem,
+      slug: editingItem.slug || generateSlug(editingItem.title),
+      status: finalStatus,
+      relatedPoemSlug: editingItem.relatedPoemSlug || undefined,
+    });
     setEditingItem(null);
     setIsCreatingNew(false);
-    showToast(`Article "${editingItem.title}" saved!`);
+    showToast(`Article "${editingItem.title}" saved (${finalStatus})!`);
   };
 
   const handleDeleteArticle = (id: string) => {
@@ -244,7 +271,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       duration: '04:30',
       description: '',
       category: 'spoken_word',
-      status: 'published'
+      status: canPublish ? 'published' : 'draft'
     };
     setEditingVideo(newVid);
     setIsVideoCreatingNew(true);
@@ -266,7 +293,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       showToast('Permission denied: Your role cannot edit video entries.');
       return;
     }
-    saveVideo(savedVideo);
+    const finalStatus: ContentStatus = !canPublish ? 'draft' : (savedVideo.status || 'published');
+    saveVideo({ ...savedVideo, status: finalStatus });
     setVideos(getVideos());
     setVideoModalOpen(false);
     setEditingVideo(null);
@@ -311,7 +339,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       deliverables: ['Key deliverable 1', 'Key deliverable 2'],
       iconName: 'Sparkles',
       typicalLeadTime: '2 weeks',
-      status: 'published'
+      status: canPublish ? 'published' : 'draft'
     };
     setEditingItem(newService);
     setIsCreatingNew(true);
@@ -323,7 +351,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       showToast('Permission denied: Your role cannot edit services.');
       return;
     }
-    saveService(editingItem);
+    const finalStatus: ContentStatus = !canPublish ? 'draft' : (editingItem.status || 'published');
+    saveService({ ...editingItem, status: finalStatus });
     setEditingItem(null);
     setIsCreatingNew(false);
     showToast(`Service "${editingItem.title}" updated.`);
@@ -337,6 +366,16 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     deleteService(id);
     setDeleteConfirmId(null);
     showToast('Service deleted.');
+  };
+
+  const handleToggleServiceStatus = (service: Service) => {
+    if (!hasAdminPrivilege('canPublishContent')) {
+      showToast('Permission denied: Your role cannot change publish status.');
+      return;
+    }
+    const newStatus: ContentStatus = (service.status || 'published') === 'published' ? 'draft' : 'published';
+    saveService({ ...service, status: newStatus });
+    showToast(`Service marked as ${newStatus}.`);
   };
 
   // ---------------- ACHIEVEMENT MUTATIONS ----------------
@@ -353,7 +392,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       category: 'Award',
       description: 'Brief description of honor...',
       highlight: true,
-      status: 'published'
+      status: canPublish ? 'published' : 'draft'
     };
     setEditingItem(newAch);
     setIsCreatingNew(true);
@@ -365,7 +404,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       showToast('Permission denied: Your role cannot edit honors.');
       return;
     }
-    saveAchievement(editingItem);
+    const finalStatus: ContentStatus = !canPublish ? 'draft' : (editingItem.status || 'published');
+    saveAchievement({ ...editingItem, status: finalStatus });
     setEditingItem(null);
     setIsCreatingNew(false);
     showToast(`Achievement "${editingItem.title}" saved.`);
@@ -381,6 +421,45 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     showToast('Achievement deleted.');
   };
 
+  const handleToggleAchievementStatus = (ach: Achievement) => {
+    if (!hasAdminPrivilege('canPublishContent')) {
+      showToast('Permission denied: Your role cannot change publish status.');
+      return;
+    }
+    const newStatus: ContentStatus = (ach.status || 'published') === 'published' ? 'draft' : 'published';
+    saveAchievement({ ...ach, status: newStatus });
+    showToast(`Achievement marked as ${newStatus}.`);
+  };
+
+  // ---------------- INQUIRIES & SUBSCRIBERS ----------------
+  const handleUpdateInquiryStatus = (id: string, status: InquiryStatus) => {
+    if (!hasAdminPrivilege('canManageBookings')) {
+      showToast('Permission denied: Your role cannot manage booking inquiries.');
+      return;
+    }
+    updateInquiryStatus(id, status);
+    showToast(`Inquiry status updated to ${status}.`);
+  };
+
+  const handleDeleteInquiryRecord = (id: string) => {
+    if (!hasAdminPrivilege('canManageBookings') && !hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot delete inquiries.');
+      return;
+    }
+    deleteInquiry(id);
+    setDeleteConfirmId(null);
+    showToast('Inquiry deleted.');
+  };
+
+  const handleDeleteSubscriberRecord = (id: string) => {
+    if (!hasAdminPrivilege('canManageBookings') && !hasAdminPrivilege('canDeleteContent')) {
+      showToast('Permission denied: Your role cannot remove subscribers.');
+      return;
+    }
+    deleteSubscriber(id);
+    showToast('Subscriber removed.');
+  };
+
   // ---------------- SITE SETTINGS SAVE ----------------
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -388,7 +467,10 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       showToast('Permission denied: Site configuration requires administrative privileges.');
       return;
     }
-    saveSiteSettings(siteSettings);
+    saveSiteSettings({
+      ...siteSettings,
+      tagline: siteSettings.siteTagline || siteSettings.tagline
+    });
     showToast('Global Site Settings updated successfully!');
   };
 
@@ -423,15 +505,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     reader.readAsText(file);
   };
 
-  const handleResetData = () => {
+  const confirmResetData = () => {
     if (!hasAdminPrivilege('canResetData')) {
       showToast('Permission denied: Only Super Administrators can reset the system.');
       return;
     }
-    if (window.confirm('Are you sure you want to reset all CMS content back to the default seed dataset? Custom additions will be replaced.')) {
-      resetCmsData();
-      showToast('CMS data reset to default seed content.');
-    }
+    resetCmsData();
+    setResetConfirmOpen(false);
+    showToast('CMS data reset to default seed content.');
   };
 
   // Filter items
@@ -455,6 +536,35 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
     const matchesStatus = statusFilter === 'all' || (v.status || 'published') === statusFilter;
     return matchesQuery && matchesStatus;
   });
+
+  const filteredServices = services.filter(s => {
+    const matchesQuery = s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.tagline.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || (s.status || 'published') === statusFilter;
+    return matchesQuery && matchesStatus;
+  });
+
+  const filteredAchievements = achievements.filter(a => {
+    const matchesQuery = a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.organization.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || (a.status || 'published') === statusFilter;
+    return matchesQuery && matchesStatus;
+  });
+
+  const filteredInquiries = inquiries.filter(inq => {
+    if (inquiryFilter === 'booking' && inq.type !== 'booking') return false;
+    if (inquiryFilter === 'contact' && inq.type !== 'contact') return false;
+    const q = searchQuery.toLowerCase();
+    return (
+      inq.name.toLowerCase().includes(q) ||
+      inq.email.toLowerCase().includes(q) ||
+      inq.referenceCode.toLowerCase().includes(q) ||
+      (inq.subject || '').toLowerCase().includes(q) ||
+      (inq.organization || '').toLowerCase().includes(q)
+    );
+  });
+
+  const pendingInquiriesCount = inquiries.filter(i => i.status === 'pending').length;
 
   if (!admin) {
     return (
@@ -505,13 +615,13 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <div>
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E88D4D] bg-[#2A2A2A] px-3 py-1 rounded-full border border-[#3A6EA5]/30 mb-3">
               <Layout className="w-3.5 h-3.5" />
-              <span>Interactive CMS Studio · Creator Workspace</span>
+              <span>Interactive CMS Studio · {admin.roleLabel}</span>
             </div>
             <h1 className="font-serif text-3xl sm:text-5xl font-extrabold text-[#FFFBF5]">
               Content Management System
             </h1>
             <p className="text-sm sm:text-base text-stone-300 max-w-2xl leading-relaxed mt-1">
-              Create, edit, delete, categorize, and publish poems, articles, video archives, and site configurations in real-time. Edits persist locally.
+              Create, edit, delete, categorize, and publish poems, articles, video archives, client inquiries, and site configurations in real-time.
             </p>
           </div>
 
@@ -550,7 +660,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             {hasAdminPrivilege('canResetData') && (
               <button
                 id="cms-reset-btn"
-                onClick={handleResetData}
+                onClick={() => setResetConfirmOpen(true)}
                 className="px-3.5 py-2.5 rounded-lg bg-[#2A2A2A] hover:bg-[#333333] text-xs font-semibold text-[#E88D4D] border border-[#3A3A3A] transition-colors flex items-center gap-1.5 cursor-pointer"
                 title="Reset data back to default seed state"
               >
@@ -578,7 +688,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-poems"
             onClick={() => { setActiveContentType('poems'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'poems'
                 ? 'bg-[#C83C2E] text-white shadow-xs'
                 : 'text-stone-700 hover:bg-white'
@@ -591,7 +701,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-articles"
             onClick={() => { setActiveContentType('articles'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'articles'
                 ? 'bg-[#C83C2E] text-white shadow-xs'
                 : 'text-stone-700 hover:bg-white'
@@ -604,7 +714,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-videos"
             onClick={() => { setActiveContentType('videos'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'videos'
                 ? 'bg-[#C83C2E] text-white shadow-xs'
                 : 'text-stone-700 hover:bg-white'
@@ -617,7 +727,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-services"
             onClick={() => { setActiveContentType('services'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'services'
                 ? 'bg-[#C83C2E] text-white shadow-xs'
                 : 'text-stone-700 hover:bg-white'
@@ -630,7 +740,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           <button
             id="cms-tab-achievements"
             onClick={() => { setActiveContentType('achievements'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               activeContentType === 'achievements'
                 ? 'bg-[#C83C2E] text-white shadow-xs'
                 : 'text-stone-700 hover:bg-white'
@@ -640,24 +750,46 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             <span>Honors ({achievements.length})</span>
           </button>
 
-          <button
-            id="cms-tab-settings"
-            onClick={() => { setActiveContentType('settings'); setEditingItem(null); }}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              activeContentType === 'settings'
-                ? 'bg-[#C83C2E] text-white shadow-xs'
-                : 'text-stone-700 hover:bg-white'
-            }`}
-          >
-            <Settings className="w-4 h-4" />
-            <span>Site Config</span>
-          </button>
+          {hasAdminPrivilege('canManageBookings') && (
+            <button
+              id="cms-tab-inquiries"
+              onClick={() => { setActiveContentType('inquiries'); setEditingItem(null); }}
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeContentType === 'inquiries'
+                  ? 'bg-[#C83C2E] text-white shadow-xs'
+                  : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <Inbox className="w-4 h-4" />
+              <span>Inquiries ({inquiries.length})</span>
+              {pendingInquiriesCount > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full bg-[#E88D4D] text-[#1A1A1A] text-[10px] font-extrabold">
+                  {pendingInquiriesCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {hasAdminPrivilege('canManageSiteSettings') && (
+            <button
+              id="cms-tab-settings"
+              onClick={() => { setActiveContentType('settings'); setEditingItem(null); }}
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                activeContentType === 'settings'
+                  ? 'bg-[#C83C2E] text-white shadow-xs'
+                  : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <Settings className="w-4 h-4" />
+              <span>Site Config</span>
+            </button>
+          )}
 
           {hasAdminPrivilege('canManageUsers') && (
             <button
               id="cms-tab-team"
               onClick={() => { setActiveContentType('team'); setEditingItem(null); }}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 activeContentType === 'team'
                   ? 'bg-[#C83C2E] text-white shadow-xs'
                   : 'text-stone-700 hover:bg-white'
@@ -670,7 +802,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
         </div>
 
         {/* Primary Create Button */}
-        {activeContentType !== 'settings' && activeContentType !== 'team' && hasAdminPrivilege('canEditContent') && (
+        {activeContentType !== 'settings' && activeContentType !== 'team' && activeContentType !== 'inquiries' && hasAdminPrivilege('canEditContent') && (
           <button
             id="cms-add-new-btn"
             onClick={() => {
@@ -689,7 +821,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
       </div>
 
       {/* Main Content Workspace */}
-      {activeContentType !== 'settings' && activeContentType !== 'team' && (
+      {activeContentType !== 'settings' && activeContentType !== 'team' && activeContentType !== 'inquiries' && (
         <div className="space-y-6">
           
           {/* Search & Filter Toolbar */}
@@ -792,17 +924,19 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                           </button>
                         )}
 
-                        <button
-                          onClick={() => handleTogglePoemStatus(poem)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
-                            poem.status === 'published'
-                              ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
-                              : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
-                          }`}
-                          title="Toggle draft vs published status"
-                        >
-                          {poem.status === 'published' ? 'Unpublish' : 'Publish'}
-                        </button>
+                        {canPublish && (
+                          <button
+                            onClick={() => handleTogglePoemStatus(poem)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                              poem.status === 'published'
+                                ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                                : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                            title="Toggle draft vs published status"
+                          >
+                            {poem.status === 'published' ? 'Unpublish' : 'Publish'}
+                          </button>
+                        )}
 
                         <button
                           onClick={() => { setEditingItem(poem); setIsCreatingNew(false); }}
@@ -812,13 +946,15 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                           <span>Edit</span>
                         </button>
 
-                        <button
-                          onClick={() => setDeleteConfirmId(poem.id)}
-                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                          title="Delete poem"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {hasAdminPrivilege('canDeleteContent') && (
+                          <button
+                            onClick={() => setDeleteConfirmId(poem.id)}
+                            className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                            title="Delete poem"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))
@@ -859,16 +995,18 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => handleToggleArticleStatus(article)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
-                            article.status === 'published'
-                              ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
-                              : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
-                          }`}
-                        >
-                          {article.status === 'published' ? 'Unpublish' : 'Publish'}
-                        </button>
+                        {canPublish && (
+                          <button
+                            onClick={() => handleToggleArticleStatus(article)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                              article.status === 'published'
+                                ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                                : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                          >
+                            {article.status === 'published' ? 'Unpublish' : 'Publish'}
+                          </button>
+                        )}
 
                         <button
                           onClick={() => { setEditingItem(article); setIsCreatingNew(false); }}
@@ -878,12 +1016,14 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                           <span>Edit</span>
                         </button>
 
-                        <button
-                          onClick={() => setDeleteConfirmId(article.id)}
-                          className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {hasAdminPrivilege('canDeleteContent') && (
+                          <button
+                            onClick={() => setDeleteConfirmId(article.id)}
+                            className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))
@@ -1069,13 +1209,15 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                               <span>Edit</span>
                             </button>
 
-                            <button
-                              onClick={() => setDeleteConfirmId(video.id)}
-                              className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                              title="Delete video"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
+                            {hasAdminPrivilege('canDeleteContent') && (
+                              <button
+                                onClick={() => setDeleteConfirmId(video.id)}
+                                className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                                title="Delete video"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </div>
                       );
@@ -1088,88 +1230,331 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             {/* SERVICES LIST */}
             {activeContentType === 'services' && (
               <div className="divide-y divide-[#E8DFD0]">
-                {services.map((service) => (
-                  <div key={service.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
-                    <div className="space-y-1.5 max-w-2xl">
-                      <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
-                        {service.title}
-                      </h3>
-                      <p className="text-xs text-stone-600">
-                        {service.tagline}
-                      </p>
-                      <div className="text-[11px] text-[#3A6EA5] font-bold">
-                        Audience: {service.targetAudience} · Lead Time: {service.typicalLeadTime}
+                {filteredServices.length === 0 ? (
+                  <div className="p-12 text-center text-stone-500 text-sm">
+                    No services found matching search filter.
+                  </div>
+                ) : (
+                  filteredServices.map((service) => (
+                    <div key={service.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
+                      <div className="space-y-1.5 max-w-2xl">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            (service.status || 'published') === 'published'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {service.status || 'published'}
+                          </span>
+                          <span className="text-[11px] text-[#3A6EA5] font-bold">
+                            Audience: {service.targetAudience} · Lead Time: {service.typicalLeadTime}
+                          </span>
+                        </div>
+                        <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
+                          {service.title}
+                        </h3>
+                        <p className="text-xs text-stone-600">
+                          {service.tagline}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {canPublish && (
+                          <button
+                            onClick={() => handleToggleServiceStatus(service)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                              (service.status || 'published') === 'published'
+                                ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                                : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                          >
+                            {(service.status || 'published') === 'published' ? 'Unpublish' : 'Publish'}
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => { setEditingItem(service); setIsCreatingNew(false); }}
+                          className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+
+                        {hasAdminPrivilege('canDeleteContent') && (
+                          <button
+                            onClick={() => setDeleteConfirmId(service.id)}
+                            className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => { setEditingItem(service); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteConfirmId(service.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
 
             {/* ACHIEVEMENTS LIST */}
             {activeContentType === 'achievements' && (
               <div className="divide-y divide-[#E8DFD0]">
-                {achievements.map((ach) => (
-                  <div key={ach.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
-                    <div className="space-y-1.5 max-w-2xl">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-[#3A6EA5] bg-[#3A6EA5]/10 px-2 py-0.5 rounded border border-[#3A6EA5]/20">
-                          {ach.category}
-                        </span>
-                        <span className="text-xs text-stone-400 font-bold">{ach.year}</span>
-                        {ach.highlight && (
-                          <span className="text-[10px] bg-[#E88D4D]/15 text-[#E88D4D] px-2 py-0.5 rounded font-bold border border-[#E88D4D]/30">
-                            Highlight
+                {filteredAchievements.length === 0 ? (
+                  <div className="p-12 text-center text-stone-500 text-sm">
+                    No honors or milestones found matching search filter.
+                  </div>
+                ) : (
+                  filteredAchievements.map((ach) => (
+                    <div key={ach.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#FAF5ED]/80 transition-colors">
+                      <div className="space-y-1.5 max-w-2xl">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-[11px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                            (ach.status || 'published') === 'published'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          }`}>
+                            {ach.status || 'published'}
                           </span>
+                          <span className="text-xs font-bold text-[#3A6EA5] bg-[#3A6EA5]/10 px-2 py-0.5 rounded border border-[#3A6EA5]/20">
+                            {ach.category}
+                          </span>
+                          <span className="text-xs text-stone-400 font-bold">{ach.year}</span>
+                          {ach.highlight && (
+                            <span className="text-[10px] bg-[#E88D4D]/15 text-[#E88D4D] px-2 py-0.5 rounded font-bold border border-[#E88D4D]/30">
+                              Highlight
+                            </span>
+                          )}
+                        </div>
+                        <h3 className="font-serif text-lg font-bold text-[#1A1A1A]">
+                          {ach.title} — <span className="font-sans text-stone-600 font-medium text-sm">{ach.organization}</span>
+                        </h3>
+                        <p className="text-xs text-stone-600">
+                          {ach.description}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        {canPublish && (
+                          <button
+                            onClick={() => handleToggleAchievementStatus(ach)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-colors cursor-pointer ${
+                              (ach.status || 'published') === 'published'
+                                ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                                : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                            }`}
+                          >
+                            {(ach.status || 'published') === 'published' ? 'Unpublish' : 'Publish'}
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => { setEditingItem(ach); setIsCreatingNew(false); }}
+                          className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </button>
+
+                        {hasAdminPrivilege('canDeleteContent') && (
+                          <button
+                            onClick={() => setDeleteConfirmId(ach.id)}
+                            className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         )}
                       </div>
-                      <h3 className="font-serif text-lg font-bold text-[#1A1A1A]">
-                        {ach.title} — <span className="font-sans text-stone-600 font-medium text-sm">{ach.organization}</span>
-                      </h3>
-                      <p className="text-xs text-stone-600">
-                        {ach.description}
-                      </p>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => { setEditingItem(ach); setIsCreatingNew(false); }}
-                        className="px-3 py-1.5 rounded-lg bg-[#3A6EA5]/10 hover:bg-[#3A6EA5]/20 text-[#3A6EA5] border border-[#3A6EA5]/30 text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span>Edit</span>
-                      </button>
-
-                      <button
-                        onClick={() => setDeleteConfirmId(ach.id)}
-                        className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] transition-colors cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
 
           </div>
+        </div>
+      )}
+
+      {/* INQUIRIES & NEWSLETTER SUBSCRIBERS WORKSPACE */}
+      {activeContentType === 'inquiries' && (
+        <div className="space-y-6">
+          <div className="p-4 rounded-xl bg-white border border-[#E8DFD0] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative w-full sm:w-80">
+              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+              <input
+                type="text"
+                placeholder="Search by name, email, or reference code..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <button
+                onClick={() => setInquiryFilter('all')}
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  inquiryFilter === 'all' ? 'bg-[#1A1A1A] text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                All Inquiries ({inquiries.length})
+              </button>
+              <button
+                onClick={() => setInquiryFilter('booking')}
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  inquiryFilter === 'booking' ? 'bg-[#C83C2E] text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                Bookings ({inquiries.filter(i => i.type === 'booking').length})
+              </button>
+              <button
+                onClick={() => setInquiryFilter('contact')}
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  inquiryFilter === 'contact' ? 'bg-[#3A6EA5] text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                Messages ({inquiries.filter(i => i.type === 'contact').length})
+              </button>
+              <button
+                onClick={() => setInquiryFilter('subscribers')}
+                className={`px-3 py-1.5 rounded-md font-semibold cursor-pointer transition-colors ${
+                  inquiryFilter === 'subscribers' ? 'bg-emerald-700 text-white' : 'bg-[#FAF5ED] text-stone-600 hover:bg-stone-200'
+                }`}
+              >
+                Newsletter ({subscribers.length})
+              </button>
+            </div>
+          </div>
+
+          {inquiryFilter === 'subscribers' ? (
+            <div className="bg-white rounded-2xl border border-[#E8DFD0] overflow-hidden shadow-xs divide-y divide-[#E8DFD0]">
+              {subscribers.length === 0 ? (
+                <div className="p-12 text-center text-stone-500 text-sm">
+                  No newsletter subscribers recorded yet.
+                </div>
+              ) : (
+                subscribers.map((sub) => (
+                  <div key={sub.id} className="p-4 sm:px-6 flex items-center justify-between gap-4 hover:bg-[#FAF5ED]/60">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-[#C83C2E]" />
+                      <div>
+                        <p className="font-bold text-sm text-[#1A1A1A]">{sub.email}</p>
+                        <p className="text-[11px] text-stone-400">
+                          Subscribed {new Date(sub.subscribedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteSubscriberRecord(sub.id)}
+                      className="p-2 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] cursor-pointer"
+                      title="Remove subscriber"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-[#E8DFD0] overflow-hidden shadow-xs divide-y divide-[#E8DFD0]">
+              {filteredInquiries.length === 0 ? (
+                <div className="p-12 text-center text-stone-500 text-sm">
+                  No booking or contact inquiries recorded yet. Submissions from the public Booking and Contact forms appear here automatically.
+                </div>
+              ) : (
+                filteredInquiries.map((inq) => (
+                  <div key={inq.id} className="p-5 sm:p-6 space-y-3 hover:bg-[#FAF5ED]/50 transition-colors">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          inq.type === 'booking'
+                            ? 'bg-[#C83C2E]/10 text-[#C83C2E] border border-[#C83C2E]/30'
+                            : 'bg-[#3A6EA5]/10 text-[#3A6EA5] border border-[#3A6EA5]/30'
+                        }`}>
+                          {inq.type === 'booking' ? 'Service Booking' : 'Direct Message'}
+                        </span>
+                        <span className="font-mono text-xs font-bold text-stone-700 bg-[#FAF5ED] px-2 py-0.5 rounded border border-[#E8DFD0]">
+                          Ref: {inq.referenceCode}
+                        </span>
+                        <span className="text-xs text-stone-400 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(inq.createdAt).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={inq.status}
+                          onChange={(e) => handleUpdateInquiryStatus(inq.id, e.target.value as InquiryStatus)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border focus:outline-none cursor-pointer ${
+                            inq.status === 'confirmed'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : inq.status === 'reviewed'
+                              ? 'bg-blue-50 text-blue-700 border-blue-200'
+                              : inq.status === 'archived'
+                              ? 'bg-stone-100 text-stone-500 border-stone-200'
+                              : 'bg-amber-50 text-amber-800 border-amber-200'
+                          }`}
+                        >
+                          <option value="pending">Pending Review</option>
+                          <option value="reviewed">Reviewed</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="archived">Archived</option>
+                        </select>
+
+                        <button
+                          onClick={() => setDeleteConfirmId(inq.id)}
+                          className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 border border-[#E8DFD0] cursor-pointer"
+                          title="Delete inquiry"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1 text-xs">
+                      <div className="space-y-1">
+                        <p className="font-bold text-sm text-[#1A1A1A]">{inq.name}</p>
+                        <p className="text-stone-600 flex items-center gap-1.5">
+                          <Mail className="w-3.5 h-3.5 text-[#E88D4D]" />
+                          <a href={`mailto:${inq.email}`} className="underline hover:text-[#C83C2E]">{inq.email}</a>
+                        </p>
+                        {inq.phone && (
+                          <p className="text-stone-600 flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-[#3A6EA5]" />
+                            <span>{inq.phone}</span>
+                          </p>
+                        )}
+                        {inq.organization && (
+                          <p className="text-stone-600 flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-stone-400" />
+                            <span>{inq.organization}</span>
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="md:col-span-2 bg-[#FAF5ED] p-3.5 rounded-xl border border-[#E8DFD0] space-y-2">
+                        {inq.type === 'booking' ? (
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-semibold text-[#3A6EA5] border-b border-[#E8DFD0] pb-2">
+                            <span>Service: {inq.serviceTitle || inq.serviceType}</span>
+                            {inq.eventDate && <span>• Event Date: {inq.eventDate}</span>}
+                            {inq.budgetRange && <span>• Budget: {inq.budgetRange}</span>}
+                          </div>
+                        ) : (
+                          inq.subject && (
+                            <div className="text-xs font-bold text-[#1A1A1A] border-b border-[#E8DFD0] pb-1.5">
+                              Subject: {inq.subject}
+                            </div>
+                          )
+                        )}
+                        <p className="text-xs text-stone-700 whitespace-pre-line leading-relaxed">
+                          {inq.projectBrief}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -1181,7 +1566,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               Global Site Configuration
             </h2>
             <p className="text-xs text-stone-500 mt-1">
-              Modify top bar announcements, website title, and hero section marketing copy.
+              Modify top bar announcements, website title, hero marketing copy, and official contact metadata.
             </p>
           </div>
 
@@ -1204,8 +1589,8 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               </label>
               <input
                 type="text"
-                value={siteSettings.siteTagline}
-                onChange={(e) => setSiteSettings({ ...siteSettings, siteTagline: e.target.value })}
+                value={siteSettings.siteTagline || siteSettings.tagline || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, siteTagline: e.target.value, tagline: e.target.value })}
                 className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
               />
             </div>
@@ -1235,6 +1620,42 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             />
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
+                Official Contact Email
+              </label>
+              <input
+                type="email"
+                value={siteSettings.contactEmail || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, contactEmail: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
+                Contact Phone
+              </label>
+              <input
+                type="text"
+                value={siteSettings.contactPhone || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, contactPhone: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#1A1A1A] uppercase tracking-wider mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                value={siteSettings.location || ''}
+                onChange={(e) => setSiteSettings({ ...siteSettings, location: e.target.value })}
+                className="w-full px-3.5 py-2.5 rounded-lg bg-[#FAF5ED] border border-[#E8DFD0] text-xs text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+              />
+            </div>
+          </div>
+
           <div className="p-4 rounded-xl bg-[#FAF5ED] border border-[#E8DFD0] space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -1242,12 +1663,12 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   Top Announcement Banner
                 </span>
                 <span className="text-xs text-stone-500">
-                  Highlight tour dates, bookings, or new publication updates.
+                  Highlight tour dates, bookings, or new publication updates across the top of the public site.
                 </span>
               </div>
               <input
                 type="checkbox"
-                checked={siteSettings.announcementActive}
+                checked={!!siteSettings.announcementActive}
                 onChange={(e) => setSiteSettings({ ...siteSettings, announcementActive: e.target.checked })}
                 className="w-4 h-4 text-[#C83C2E] rounded accent-[#C83C2E]"
               />
@@ -1335,7 +1756,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                   <label className="block font-bold text-[#1A1A1A] mb-1">Year</label>
                   <input
@@ -1347,11 +1768,24 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 </div>
 
                 <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Read Time (Mins)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={30}
+                    value={editingItem.readTimeMinutes || 3}
+                    onChange={(e) => setEditingItem({ ...editingItem, readTimeMinutes: Number(e.target.value) || 3 })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+
+                <div>
                   <label className="block font-bold text-[#1A1A1A] mb-1">Status</label>
                   <select
-                    value={editingItem.status || 'published'}
+                    value={canPublish ? (editingItem.status || 'published') : 'draft'}
+                    disabled={!canPublish}
                     onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E] disabled:opacity-60"
                   >
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
@@ -1367,6 +1801,35 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   >
                     <option value="true">Yes (Featured)</option>
                     <option value="false">No</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Connected YouTube Video ID or URL (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. dQw4w9WgXcQ or https://youtu.be/..."
+                    value={editingItem.youtubeId || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, youtubeId: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-mono focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Connected Essay / Review (Optional)</label>
+                  <select
+                    value={editingItem.relatedWritingSlug || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, relatedWritingSlug: e.target.value || undefined })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  >
+                    <option value="">— No Linked Essay —</option>
+                    {articles.map((art) => (
+                      <option key={art.id} value={art.slug}>
+                        {art.title}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1472,11 +1935,30 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     type="text"
                     required
                     value={editingItem.title}
-                    onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                    onChange={(e) => {
+                      const title = e.target.value;
+                      setEditingItem({
+                        ...editingItem,
+                        title,
+                        slug: isCreatingNew ? generateSlug(title) : editingItem.slug
+                      });
+                    }}
                     className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-serif font-bold text-sm focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                   />
                 </div>
 
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">URL Slug</label>
+                  <input
+                    type="text"
+                    value={editingItem.slug || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, slug: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-mono focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                   <label className="block font-bold text-[#1A1A1A] mb-1">Type</label>
                   <select
@@ -1487,6 +1969,68 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                     <option value="blog">Essay / Blog Post</option>
                     <option value="review">Literary Review</option>
                   </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Status</label>
+                  <select
+                    value={canPublish ? (editingItem.status || 'published') : 'draft'}
+                    disabled={!canPublish}
+                    onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E] disabled:opacity-60"
+                  >
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Publish Date</label>
+                  <input
+                    type="text"
+                    value={editingItem.date || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, date: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Read Time</label>
+                  <input
+                    type="text"
+                    value={editingItem.readTime}
+                    onChange={(e) => setEditingItem({ ...editingItem, readTime: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Connected Poem (Optional)</label>
+                  <select
+                    value={editingItem.relatedPoemSlug || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, relatedPoemSlug: e.target.value || undefined })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  >
+                    <option value="">— No Linked Poem —</option>
+                    {poems.map((p) => (
+                      <option key={p.id} value={p.slug}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Highlight Quote (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="Key pull-quote from the piece..."
+                    value={editingItem.quoteHighlight || ''}
+                    onChange={(e) => setEditingItem({ ...editingItem, quoteHighlight: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
                 </div>
               </div>
 
@@ -1516,28 +2060,17 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-[#1A1A1A] mb-1">Read Time</label>
-                  <input
-                    type="text"
-                    value={editingItem.readTime}
-                    onChange={(e) => setEditingItem({ ...editingItem, readTime: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-[#1A1A1A] mb-1">Tags (Comma separated)</label>
-                  <input
-                    type="text"
-                    value={editingItem.tags.join(', ')}
-                    onChange={(e) => {
-                      const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
-                      setEditingItem({ ...editingItem, tags });
-                    }}
-                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                  />
-                </div>
+              <div>
+                <label className="block font-bold text-[#1A1A1A] mb-1">Tags (Comma separated)</label>
+                <input
+                  type="text"
+                  value={editingItem.tags.join(', ')}
+                  onChange={(e) => {
+                    const tags = e.target.value.split(',').map(t => t.trim()).filter(Boolean);
+                    setEditingItem({ ...editingItem, tags });
+                  }}
+                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                />
               </div>
             </div>
 
@@ -1572,7 +2105,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
           >
             <div className="p-6 bg-[#1A1A1A] text-[#FFFBF5] flex items-center justify-between border-b border-[#2A2A2A]">
               <h3 className="font-serif text-xl font-bold">
-                Edit {activeContentType.slice(0, -1).toUpperCase()}
+                {isCreatingNew ? 'Create' : 'Edit'} {activeContentType.slice(0, -1).toUpperCase()}
               </h3>
               <button
                 type="button"
@@ -1584,15 +2117,29 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
             </div>
 
             <div className="p-6 space-y-4 text-xs bg-[#FAF5ED]">
-              <div>
-                <label className="block font-bold text-[#1A1A1A] mb-1">Title *</label>
-                <input
-                  type="text"
-                  required
-                  value={editingItem.title}
-                  onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-bold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingItem.title}
+                    onChange={(e) => setEditingItem({ ...editingItem, title: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-bold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-[#1A1A1A] mb-1">Status</label>
+                  <select
+                    value={canPublish ? (editingItem.status || 'published') : 'draft'}
+                    disabled={!canPublish}
+                    onChange={(e) => setEditingItem({ ...editingItem, status: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] font-semibold focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                  >
+                    <option value="published">Published</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                </div>
               </div>
 
               {activeContentType === 'services' && (
@@ -1606,6 +2153,26 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Target Audience</label>
+                      <input
+                        type="text"
+                        value={editingItem.targetAudience || ''}
+                        onChange={(e) => setEditingItem({ ...editingItem, targetAudience: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Typical Lead Time</label>
+                      <input
+                        type="text"
+                        value={editingItem.typicalLeadTime || ''}
+                        onChange={(e) => setEditingItem({ ...editingItem, typicalLeadTime: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                      />
+                    </div>
+                  </div>
                   <div>
                     <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
                     <textarea
@@ -1615,12 +2182,24 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                       className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                     />
                   </div>
+                  <div>
+                    <label className="block font-bold text-[#1A1A1A] mb-1">Deliverables (One per line)</label>
+                    <textarea
+                      rows={4}
+                      value={(editingItem.deliverables || []).join('\n')}
+                      onChange={(e) => {
+                        const deliverables = e.target.value.split('\n').map(d => d.trim()).filter(Boolean);
+                        setEditingItem({ ...editingItem, deliverables });
+                      }}
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                    />
+                  </div>
                 </>
               )}
 
               {activeContentType === 'achievements' && (
                 <>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <label className="block font-bold text-[#1A1A1A] mb-1">Organization</label>
                       <input
@@ -1639,6 +2218,32 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                         className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
                       />
                     </div>
+                    <div>
+                      <label className="block font-bold text-[#1A1A1A] mb-1">Category</label>
+                      <select
+                        value={editingItem.category || 'Award'}
+                        onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-[#E8DFD0] text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#C83C2E]"
+                      >
+                        <option value="Award">Award</option>
+                        <option value="Performance">Performance</option>
+                        <option value="Publication">Publication</option>
+                        <option value="Nomination">Nomination</option>
+                        <option value="Keynote">Keynote</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="ach-highlight-toggle"
+                      checked={!!editingItem.highlight}
+                      onChange={(e) => setEditingItem({ ...editingItem, highlight: e.target.checked })}
+                      className="w-4 h-4 accent-[#C83C2E] rounded"
+                    />
+                    <label htmlFor="ach-highlight-toggle" className="font-bold text-[#1A1A1A] cursor-pointer">
+                      Highlight on Homepage Recognition Bar
+                    </label>
                   </div>
                   <div>
                     <label className="block font-bold text-[#1A1A1A] mb-1">Description</label>
@@ -1683,7 +2288,7 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
               Confirm Item Deletion
             </h3>
             <p className="text-xs text-stone-600">
-              Are you sure you want to delete this item? This action will immediately remove it from the live site view.
+              Are you sure you want to delete this item? This action will immediately remove it from the store.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
@@ -1699,10 +2304,42 @@ export const CmsStudioSection: React.FC<CmsStudioSectionProps> = ({
                   if (activeContentType === 'videos') handleDeleteVideo(deleteConfirmId);
                   if (activeContentType === 'services') handleDeleteService(deleteConfirmId);
                   if (activeContentType === 'achievements') handleDeleteAchievement(deleteConfirmId);
+                  if (activeContentType === 'inquiries') handleDeleteInquiryRecord(deleteConfirmId);
                 }}
                 className="px-4 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs cursor-pointer"
               >
                 Yes, Delete Item
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESET DATA CONFIRMATION MODAL */}
+      {resetConfirmOpen && (
+        <div className="fixed inset-0 z-50 bg-[#1A1A1A]/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FFFBF5] max-w-md w-full rounded-2xl p-6 shadow-2xl border border-[#E8DFD0] space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
+              <RefreshCw className="w-6 h-6" />
+            </div>
+            <h3 className="font-serif text-xl font-bold text-[#1A1A1A]">
+              Reset CMS Data to Defaults?
+            </h3>
+            <p className="text-xs text-stone-600">
+              Are you sure you want to reset all CMS content back to the default seed dataset? Custom additions will be replaced.
+            </p>
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                onClick={() => setResetConfirmOpen(false)}
+                className="px-4 py-2 rounded-lg border border-[#E8DFD0] text-xs font-semibold text-stone-700 hover:bg-stone-100 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmResetData}
+                className="px-4 py-2 rounded-lg bg-[#C83C2E] hover:bg-[#B03225] text-white text-xs font-bold shadow-xs cursor-pointer"
+              >
+                Yes, Reset to Defaults
               </button>
             </div>
           </div>
