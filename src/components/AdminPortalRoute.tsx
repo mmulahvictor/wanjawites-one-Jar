@@ -359,8 +359,6 @@ export const AdminPortalRoute: React.FC<AdminPortalRouteProps> = ({
           if (tab === 'home') navigate('/');
           else if (tab === 'poetry') navigate('/poetry');
           else if (tab === 'writing') navigate('/writing');
-          else if (tab === 'about') navigate('/about');
-          else if (tab === 'work-with-wanja') navigate('/services');
           else if (tab === 'videos') navigate('/videos');
           else if (tab === 'contact') navigate('/contact');
           else if (tab === 'style-guide') navigate('/style-guide');

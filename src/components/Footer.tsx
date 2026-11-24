@@ -45,8 +45,6 @@ export const Footer: React.FC<FooterProps> = () => {
         <Link to="/poetry" className="hover:text-[#D81B7A] transition-colors">One-Jar</Link>
         <Link to="/writing" className="hover:text-[#D81B7A] transition-colors">Journal</Link>
         <Link to="/videos" className="hover:text-[#D81B7A] transition-colors">Film</Link>
-        <Link to="/services" className="hover:text-[#D81B7A] transition-colors">Services</Link>
-        <Link to="/about" className="hover:text-[#D81B7A] transition-colors">About</Link>
         <Link to="/contact" className="hover:text-[#D81B7A] transition-colors">Contact</Link>
         <a 
           href="/assets/aistudio/EPK_One-Jar_Poetry_7867656c.pdf" 

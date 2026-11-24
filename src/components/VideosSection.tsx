@@ -6,13 +6,12 @@ import { Play, Youtube, ExternalLink } from 'lucide-react';
 
 interface VideosSectionProps {
   videos?: VideoItem[];
-  onOpenVideo: (video: VideoItem) => void;
+  onOpenVideo?: (video: VideoItem) => void;
   onOpenBooking: () => void;
 }
 
 export const VideosSection: React.FC<VideosSectionProps> = ({ 
   videos, 
-  onOpenVideo, 
   onOpenBooking 
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -84,6 +83,16 @@ export const VideosSection: React.FC<VideosSectionProps> = ({
               >
                 Inquire for Screenings & Film Labs
               </button>
+              <a
+                href={YOUTUBE_CHANNEL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-wanja-alt inline-flex items-center gap-2 cursor-pointer"
+              >
+                <Youtube className="w-4 h-4 text-[#D81B7A]" />
+                <span>Watch on {YOUTUBE_CHANNEL_HANDLE}</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+              </a>
             </div>
           </div>
 
@@ -144,10 +153,13 @@ export const VideosSection: React.FC<VideosSectionProps> = ({
                   className="bg-white rounded-2xl p-5 border border-[#FFD9E6] shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
                 >
                   <div>
-                    {/* Video thumbnail with play trigger */}
-                    <div 
-                      onClick={() => onOpenVideo(video)}
-                      className="relative rounded-xl overflow-hidden aspect-video bg-black cursor-pointer mb-4"
+                    {/* Video thumbnail linked to YouTube channel */}
+                    <a
+                      href={YOUTUBE_CHANNEL_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block relative rounded-xl overflow-hidden aspect-video bg-black cursor-pointer mb-4"
+                      aria-label={`Watch ${video.title} on ${YOUTUBE_CHANNEL_HANDLE} YouTube channel`}
                     >
                       <img 
                         src={thumb} 
@@ -162,17 +174,21 @@ export const VideosSection: React.FC<VideosSectionProps> = ({
                       <span className="absolute bottom-2 right-2 text-[10px] font-bold text-white bg-black/80 px-2 py-0.5 rounded-md">
                         {video.duration}
                       </span>
-                    </div>
+                    </a>
 
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#D81B7A] bg-[#FFD9E6] px-2.5 py-0.5 rounded-full inline-block mb-2">
                       {video.event}
                     </span>
 
-                    <h3 
-                      onClick={() => onOpenVideo(video)}
-                      className="font-serif text-xl sm:text-2xl text-[#3A1208] font-normal leading-snug cursor-pointer group-hover:text-[#D81B7A] transition-colors mb-2"
-                    >
-                      {video.title}
+                    <h3 className="font-serif text-xl sm:text-2xl text-[#3A1208] font-normal leading-snug mb-2">
+                      <a
+                        href={YOUTUBE_CHANNEL_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-[#D81B7A] transition-colors"
+                      >
+                        {video.title}
+                      </a>
                     </h3>
 
                     <p className="text-xs text-[#3A1208]/75 line-clamp-2 leading-relaxed mb-4">
@@ -184,12 +200,16 @@ export const VideosSection: React.FC<VideosSectionProps> = ({
                     <span className="text-[11px] text-[#3A1208]/60 font-medium">
                       {video.date}
                     </span>
-                    <button
-                      onClick={() => onOpenVideo(video)}
-                      className="btn-wanja-alt text-xs py-1 px-3 cursor-pointer"
+                    <a
+                      href={YOUTUBE_CHANNEL_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-wanja-alt text-xs py-1 px-3 cursor-pointer inline-flex items-center gap-1.5"
                     >
-                      Play Video
-                    </button>
+                      <Youtube className="w-3.5 h-3.5 text-[#D81B7A]" />
+                      <span>Watch on YouTube</span>
+                      <ExternalLink className="w-3 h-3 opacity-70" />
+                    </a>
                   </div>
                 </div>
               );

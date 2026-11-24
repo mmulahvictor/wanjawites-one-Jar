@@ -2,8 +2,6 @@ export type NavigationTab =
   | 'home' 
   | 'poetry' 
   | 'writing' 
-  | 'about' 
-  | 'work-with-wanja' 
   | 'videos' 
   | 'contact'
   | 'cms'

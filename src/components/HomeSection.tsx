@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Poem, VideoItem, Article, Achievement, Service } from '../types';
 import { ArrowRight, ChevronDown } from 'lucide-react';
+import { EpkModal } from './EpkModal';
 
 interface HomeSectionProps {
   poems?: Poem[];
@@ -22,6 +23,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   onOpenBooking,
 }) => {
   const navigate = useNavigate();
+  const [isEpkModalOpen, setIsEpkModalOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -135,10 +137,10 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
               Enter One-Jar
             </button>
             <button
-              onClick={() => navigate('/about')}
+              onClick={() => setIsEpkModalOpen(true)}
               className="btn-wanja-alt cursor-pointer"
             >
-              Read Biography
+              Read EPK & Bio
             </button>
           </div>
         </div>
@@ -324,6 +326,11 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
 
         </div>
       </section>
+
+      <EpkModal
+        isOpen={isEpkModalOpen}
+        onClose={() => setIsEpkModalOpen(false)}
+      />
 
     </div>
   );

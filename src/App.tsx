@@ -17,8 +17,6 @@ import { AccessibilityToolbar } from './components/AccessibilityToolbar';
 import { HomeSection } from './components/HomeSection';
 import { PoetrySection } from './components/PoetrySection';
 import { WritingSection } from './components/WritingSection';
-import { AboutSection } from './components/AboutSection';
-import { WorkWithWanjaSection } from './components/WorkWithWanjaSection';
 import { VideosSection } from './components/VideosSection';
 import { ContactSection } from './components/ContactSection';
 import { StyleGuideSection } from './components/StyleGuideSection';
@@ -162,8 +160,6 @@ export default function App() {
     if (tab === 'home') navigate('/');
     else if (tab === 'poetry') navigate('/poetry');
     else if (tab === 'writing') navigate('/writing');
-    else if (tab === 'about') navigate('/about');
-    else if (tab === 'work-with-wanja') navigate('/services');
     else if (tab === 'videos') navigate('/videos');
     else if (tab === 'contact') navigate('/contact');
     else if (tab === 'style-guide') navigate('/style-guide');
@@ -271,31 +267,7 @@ export default function App() {
             }
           />
 
-          {/* 4. About & EPK Route */}
-          <Route
-            path="/about"
-            element={
-              <AboutSection
-                achievements={achievements}
-                onOpenBooking={() => handleOpenBooking()}
-              />
-            }
-          />
-          <Route path="/epk" element={<Navigate to="/about" replace />} />
-
-          {/* 5. Services / Work With Wanja Routes */}
-          <Route
-            path="/services"
-            element={
-              <WorkWithWanjaSection
-                services={services}
-                onOpenBookingWithService={(serviceId) => handleOpenBooking(serviceId)}
-              />
-            }
-          />
-          <Route path="/work-with-wanja" element={<Navigate to="/services" replace />} />
-
-          {/* 6. Videos Routes */}
+          {/* 4. Videos Routes */}
           <Route
             path="/videos"
             element={

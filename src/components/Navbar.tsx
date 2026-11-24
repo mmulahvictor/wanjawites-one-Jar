@@ -33,8 +33,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
     { path: '/poetry', label: 'One-Jar' },
     { path: '/writing', label: 'Journal' },
     { path: '/videos', label: 'Film' },
-    { path: '/services', label: 'Services' },
-    { path: '/about', label: 'About' },
     { path: '/contact', label: 'Contact' },
   ];
 

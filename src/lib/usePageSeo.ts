@@ -62,10 +62,6 @@ export function usePageSeo(customConfig?: SeoConfig) {
           document.title = 'Poetry & Spoken Word Archive | One-Jar Poetry (Faith Wanja)';
         } else if (pathname.startsWith('/writing')) {
           document.title = 'Culture Writing & Literary Reviews | WanjaWrites';
-        } else if (pathname.startsWith('/about')) {
-          document.title = 'About Faith Wanja | Biography & Electronic Press Kit';
-        } else if (pathname.startsWith('/services') || pathname.startsWith('/work-with-wanja')) {
-          document.title = 'Work With Wanja | Performance, Workshops & Strategic Communications';
         } else if (pathname.startsWith('/videos')) {
           document.title = 'Performance Archive & Videos | One-Jar Poetry';
         } else if (pathname.startsWith('/contact')) {
