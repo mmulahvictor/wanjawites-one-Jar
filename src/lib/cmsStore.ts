@@ -144,6 +144,13 @@ export function deletePoem(id: string): Poem[] {
 // ---------------- ARTICLES ----------------
 export function getArticles(): Article[] {
   const articles = getItem<Article[]>(STORAGE_KEYS.ARTICLES, ARTICLES);
+  const existingIds = new Set(articles.map(a => a.id));
+  const missingSeeds = ARTICLES.filter(seed => !existingIds.has(seed.id));
+  if (missingSeeds.length > 0) {
+    const merged = [...missingSeeds, ...articles];
+    setItem(STORAGE_KEYS.ARTICLES, merged);
+    return merged.map(a => ({ ...a, status: a.status || 'published' }));
+  }
   return articles.map(a => ({ ...a, status: a.status || 'published' }));
 }
 
