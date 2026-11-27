@@ -71,7 +71,7 @@ export const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
 
   const handleCopyShareLink = async () => {
     try {
-      const url = `${window.location.origin}/videos/${video.id}`;
+      const url = `${window.location.origin}/#/videos/${video.id}`;
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
       }

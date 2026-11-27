@@ -50,7 +50,10 @@ export function usePageSeo(customConfig?: SeoConfig) {
         canonicalLink.setAttribute('rel', 'canonical');
         document.head.appendChild(canonicalLink);
       }
-      canonicalLink.setAttribute('href', window.location.origin + pathname);
+      canonicalLink.setAttribute(
+        'href',
+        pathname === '/' ? `${window.location.origin}/` : `${window.location.origin}/#${pathname}`
+      );
 
       // Determine public title
       if (customConfig?.title) {

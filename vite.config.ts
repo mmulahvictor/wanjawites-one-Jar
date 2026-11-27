@@ -1,11 +1,33 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+function spaStaticFallbackPlugin() {
+  return {
+    name: 'spa-static-fallback',
+    closeBundle() {
+      const distDir = path.resolve(__dirname, 'dist');
+      const indexFile = path.join(distDir, 'index.html');
+      if (!fs.existsSync(indexFile)) return;
+
+      const html = fs.readFileSync(indexFile, 'utf-8');
+      fs.writeFileSync(path.join(distDir, '404.html'), html, 'utf-8');
+
+      const routes = ['poetry', 'writing', 'videos', 'contact', 'admin', 'cms', 'studio', 'style-guide'];
+      for (const route of routes) {
+        const routeDir = path.join(distDir, route);
+        fs.mkdirSync(routeDir, {recursive: true});
+        fs.writeFileSync(path.join(routeDir, 'index.html'), html, 'utf-8');
+      }
+    },
+  };
+}
+
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), spaStaticFallbackPlugin()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

@@ -54,7 +54,7 @@ export const WritingSection: React.FC<WritingSectionProps> = ({
 
   const handleShare = () => {
     if (!selectedArticle) return;
-    const url = `${window.location.origin}/writing/${selectedArticle.slug}`;
+    const url = `${window.location.origin}/#/writing/${selectedArticle.slug}`;
     navigator.clipboard?.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

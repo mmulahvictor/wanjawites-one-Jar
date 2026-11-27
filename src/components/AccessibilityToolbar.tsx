@@ -85,6 +85,14 @@ export const AccessibilityToolbar: React.FC = () => {
       {/* WCAG Skip to Main Content Link */}
       <a
         href="#main-content-region"
+        onClick={(e) => {
+          e.preventDefault();
+          const mainEl = document.getElementById('main-content-region');
+          if (mainEl) {
+            mainEl.focus();
+            mainEl.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 z-50 bg-[#D81B7A] text-white font-bold px-4 py-2.5 rounded-full shadow-2xl border-2 border-white focus:outline-none focus:ring-4 focus:ring-[#FFD9E6] text-sm print:hidden"
       >
         Skip to main content (Press Enter)
